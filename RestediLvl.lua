@@ -6,8 +6,8 @@ function Rested.GetILvl()
 	if( Rested.lastiLvlScan+1 <= time() ) then
 		Rested.lastiLvlScan = time()
 		local currentiLvl = select( 2, GetAverageItemLevel() )
-		Rested_restedState[Rested.realm][Rested.name].iLvl = math.floor( currentiLvl )
-		Rested_misc["maxiLvl"] = math.max( Rested_misc["maxiLvl"] or 0, math.floor( currentiLvl ) )
+		Rested_restedState[Rested.realm][Rested.name].iLvl = math.floor( currentiLvl or 0 )
+		Rested_misc["maxiLvl"] = math.max( Rested_misc["maxiLvl"] or 0, math.floor( currentiLvl or 0 ) )
 		--print( "iLvl is now: "..currentiLvl )
 	end
 end
@@ -23,7 +23,7 @@ Rested.commandList["ilvl"] = { ["help"] = {"","Show iLvl report"}, ["func"] = fu
 }
 function Rested.iLevelReport( realm, name, charStruct )
 	local rn = Rested.FormatName( realm, name )
-	Rested_misc["maxiLvl"] = math.max( Rested_misc["maxiLvl"] or 0, math.floor( charStruct.iLvl ) )
+	Rested_misc["maxiLvl"] = math.max( Rested_misc["maxiLvl"] or 0, math.floor( charStruct.iLvl or 0 ) )
 	Rested.strOut = string.format( "%d :: %d :: %s",
 			charStruct.iLvl or 0,
 			charStruct.lvlNow,

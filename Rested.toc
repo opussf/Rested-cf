@@ -1,8 +1,8 @@
 ## Interface: 80100
 ## Title: Rested Reporter
-## Notes: Rested Tracker for alts v3.0.0b-12-g32b2a09-rewrite
+## Notes: Rested Tracker for alts v3.0.0b-13-g3b98a5d-rewrite
 ## Author: opussf
-## Version: 3.0.0b-12-g32b2a09-rewrite
+## Version: 3.0.0b-13-g3b98a5d-rewrite
 ## Description: Track stats for your alts.
 ## SavedVariables: Rested_restedState Rested_misc Rested_options
 Rested.lua
