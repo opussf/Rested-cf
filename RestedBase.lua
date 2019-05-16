@@ -221,17 +221,17 @@ function Rested.NagCharacters( realm, name, charStruct )
 	rn = Rested.FormatName( realm, name )
 	local timeSince = time() - charStruct.updated
 	if (charStruct.lvlNow == Rested.maxLevel and
-			timeSince >= Rested_options.maxCutOff*86400 and
-			timeSince <= Rested_options.maxStale * 86400) then
+			timeSince >= Rested_options.nagStart and
+			timeSince <= Rested_options.stateStart) then
 		Rested.strOut = format( "%d :: %s : %s", charStruct.lvlNow, SecondsToTime(timeSince), rn )
-		table.insert( Rested.charList, {(timeSince/(Rested_options.maxStale*86400))*150, Rested.strOut} )
+		table.insert( Rested.charList, {(timeSince/(Rested_options.staleStart))*150, Rested.strOut} )
 		return 1
 	end
 	return 0
 end
 Rested.InitCallback( function()
-		Rested_options.maxCutOff = Rested_options.maxCutOff or 7
-		Rested_options.maxStale = Rested_options.maxStale or 10
+		Rested_options.nagStart = Rested_options.nagStart or 7 * 86400
+		Rested_options.staleStart = Rested_options.staleStart or 10 * 86400
 	end
 )
 Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
@@ -242,7 +242,14 @@ Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
 )
 function Rested.SetNag( inVal )
 	-- This sets the NagTime (maxCutOff) to a number of seconds -- change the name of the setting (and how the setting is used)
-	Rested_options["maxCutoff"] = Rested.DecodeTime( inVal, "d" )
+	local previousNag = SecondsToTime( Rested_options.nagStart )
+	local newNag = Rested.DecodeTime( inVal, "d" )
+	if( newNag <= Rested_options.staleStart ) then
+		Rested_options["nagStart"] = newNag
+		Rested.Print( string.format( "nagStart changed from %s to %s", previousNag, SecondsToTime( newNag ) ) )
+	else
+		Rested.Print( "nagStart cannot be greater than staleStart" )
+	end
 end
 Rested.commandList["setnag"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up in the nag report."},
 		["func"] = Rested.SetNag }
@@ -259,7 +266,7 @@ function Rested.StaleCharacters( realm, name, charStruct )
 	-- appends to the global Rested.charList
 	-- returns 1 on success, 0 on fail
 	local rn = Rested.FormatName( realm, name )
-	local stale = Rested_options.maxStale * 86400
+	local stale = Rested_options.staleStart
 	timeSince = time() - charStruct.updated
 
 	if (timeSince > stale) then
@@ -270,7 +277,14 @@ function Rested.StaleCharacters( realm, name, charStruct )
 	return 0
 end
 function Rested.SetStale( inVal )
-	Rested_options["maxStale"] = Rested.DecodeTime( inVal, "d" )
+	local previousStale = SecondsToTime( Rested_options.staleStart )
+	local newStale = Rested.DecodeTime( inVal, "d" )
+	if( newStale >= Rested_options.nagStart ) then
+		Rested_options["staleStart"] = newStale
+		Rested.Print( string.format( "staleStart changed from %s to %s", previousStale, SecondsToTime( newStale ) ) )
+	else
+		Rested.Print( "staleStart cannot be less than nagStart" )
+	end
 end
 Rested.commandList["setstale"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up as stale."},
 		["func"] = Rested.SetStale }
@@ -294,7 +308,7 @@ function Rested.MaxCharacters( realm, name, charStruct )
 		else
 			Rested.strOut = SecondsToTime(timeSince) ..": ".. rn
 		end
-		table.insert( Rested.charList, {(timeSince / (Rested_options.maxStale*86400)) * 150, Rested.strOut} )
+		table.insert( Rested.charList, {(timeSince / (Rested_options.staleStart)) * 150, Rested.strOut} )
 		return 1
 	end
 	return 0

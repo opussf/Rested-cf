@@ -14,8 +14,19 @@ Commands:
 /rested help              -> Show all available commands / reports
 
 
-The rested window Title shows the name of the report shown, and the number of lines. Reports are shown, 6 lines at a time, with a search window to limit values for most reports.
+The rested window Title shows the name of the report shown, and the number of lines.
+Reports are shown, 6 lines at a time, with a search window to limit values for most reports.
 
+The Nag and Stale reports show max level characters who have not been visited in a certain amount of time.
+The Nag report shows max level characters older than the nagStart, but younger than the staleStart cutoff times.
+The Nag report will auto show if there are any characters who would be in it.
+The Stale report shows any max level character who has not been visited after the staleStart cutoff time.
+
+Time Since visiting character >= nagStart and < staleStart -->  show in Nag report.
+Time Since visiting character >= staleStart -->  show in Stale report.
+
+A character can be 'ignored' for 1 week at a time.
+This is a way to not see a toon for a while (say to make sure they are rested, or to get them out of the nag report).
 
 
 

@@ -42,7 +42,7 @@ function Rested.GetCurrentMount( ... )
 end
 Rested.InitCallback( function()
 		Rested_misc.mountHistory = Rested_misc.mountHistory or {}
-		Rested_options.mountHistoryAge = Rested_options.mountHistoryAge or 7200
+		Rested_options.mountHistoryAge = Rested_options.mountHistoryAge or 259200
 	end
 )
 -- set the history age to 2 hours
@@ -79,3 +79,12 @@ function Rested.MountReport( realm, name, charStruct )
 		return lineCount
 	end
 end
+function Rested.SetMountHistoryAge( inVal )
+	local previousVal = SecondsToTime( Rested_options.mountHistoryAge )
+	local newVal = Rested.DecodeTime( inVal, "d" )
+	Rested_options["mountHistoryAge"] = newVal
+	Rested.Print( string.format( "mountHistoryAge changed from %s to %s", previousVal, SecondsToTime( newVal ) ) )
+end
+Rested.commandList["setmountage"] = {["help"] = {"#[s|m|h|d|w]", "Set the time to track mounts."},
+		["func"] = Rested.SetMountHistoryAge }
+
