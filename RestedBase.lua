@@ -240,7 +240,14 @@ Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
 		end
 	end
 )
+function Rested.SetNag( inVal )
+	-- This sets the NagTime (maxCutOff) to a number of seconds -- change the name of the setting (and how the setting is used)
+	Rested_options["maxCutoff"] = Rested.DecodeTime( inVal, "d" )
+end
+Rested.commandList["setnag"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up in the nag report."},
+		["func"] = Rested.SetNag }
 
+-- Stale characters
 Rested.dropDownMenuTable["Stale"] = "stale"
 Rested.commandList["stale"] = {["help"] = {"","Show stale characters"}, ["func"] = function()
 		Rested.reportName = "Stale Characters"
@@ -262,7 +269,13 @@ function Rested.StaleCharacters( realm, name, charStruct )
 	end
 	return 0
 end
+function Rested.SetStale( inVal )
+	Rested_options["maxStale"] = Rested.DecodeTime( inVal, "d" )
+end
+Rested.commandList["setstale"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up as stale."},
+		["func"] = Rested.SetStale }
 
+-- Max level characters
 Rested.dropDownMenuTable["Max"] = "max"
 Rested.commandList["max"] = {["help"] = {"","Show max level characters"}, ["func"] = function()
 		Rested.reportName = "Max Level Characters"

@@ -27,7 +27,7 @@ function Rested.GetCurrentMount( ... )
 					if( not Rested.currentMount ) then
 						print( "You have mounted: "..aName.." at "..date() )
 						Rested.currentMount = aID
-						Screenshot()
+						--Screenshot()
 						Rested_misc.mountHistory[time()] = aName
 						Rested.PruneByAge( Rested_misc.mountHistory, Rested_options.mountHistoryAge )
 					end
