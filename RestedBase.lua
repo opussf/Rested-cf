@@ -220,10 +220,10 @@ function Rested.NagCharacters( realm, name, charStruct )
 	-- returns 1 on success, 0 on fail
 	rn = Rested.FormatName( realm, name )
 	local timeSince = time() - charStruct.updated
-	if (charStruct.lvlNow == Rested.maxLevel and
+	if( charStruct.lvlNow == Rested.maxLevel and
 			timeSince >= Rested_options.nagStart and
-			timeSince <= Rested_options.stateStart) then
-		Rested.strOut = format( "%d :: %s : %s", charStruct.lvlNow, SecondsToTime(timeSince), rn )
+			timeSince <= Rested_options.staleStart ) then
+		Rested.strOut = format( "%d :: %s : %s", charStruct.lvlNow, SecondsToTime( timeSince ), rn )
 		table.insert( Rested.charList, {(timeSince/(Rested_options.staleStart))*150, Rested.strOut} )
 		return 1
 	end
