@@ -45,11 +45,14 @@ function GetKeyValues( key, value, keyPre, t )
 	if( type(value) == "table" ) then
 --		print( "value is a table" )
 		for k, v in pairs( value ) do
-			t = GetKeyValues( k, v, key, t )
+			t = GetKeyValues( k, v, ( keyPre and keyPre.."_" or "" )..key , t )
 		end
 	else
 		outKey = ( keyPre and keyPre.."_" or "" )..key
 		outVal = (tableKeyMap[outKey] and tableKeyMap[outKey].func( value ) or value)
+		if( type(outVal) == "boolean" ) then
+			outVal = outVal and "True" or "False"
+		end
 		t[outKey] = outVal
 	end
 	return t

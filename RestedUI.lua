@@ -98,8 +98,15 @@ function Rested.UIDropDownInitialize( self, level, menuList )
 	-- based on Rested.dropDownMenuTable["Full"] = "full"
 	-- the Key is what to show, the value is what rested command to call
 	-- using Rested.commandList["full"] = {["func"] = function() end }
-	local info = UIDropDownMenu_CreateInfo()
-	for text, cmd in pairs( Rested.dropDownMenuTable ) do
+	--local info = UIDropDownMenu_CreateInfo()
+	local sortedKeys, i = {}, 1
+	for text, _ in pairs( Rested.dropDownMenuTable ) do
+		sortedKeys[i] = text
+		i = i + 1
+	end
+	table.sort( sortedKeys, function( a, b ) return string.lower(a) < string.lower(b) end )
+	for _, text in ipairs( sortedKeys ) do
+		cmd = Rested.dropDownMenuTable[text]
 		info = UIDropDownMenu_CreateInfo()
 		info.text = text
 		info.notCheckable = true
