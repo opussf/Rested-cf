@@ -112,6 +112,7 @@ Rested.formatRestedStruct = {}  -- this is here for memory optimization only.  d
 function Rested.FormatRested( charStruct )
 	-- return formated rested string, restedValue, code (+ / -), timeTillRested (seconds)
 	-- rested string is color formated and shows expected current status
+	Rested.formatRestedStruct = {}
 	rs = Rested.formatRestedStruct
 	rs.timeSince = time() - ( charStruct.updated or charStruct.initAt or 0 )
 

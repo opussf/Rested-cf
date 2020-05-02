@@ -25,7 +25,7 @@ function Rested.UIBuildBars()
 			Rested.bars[idx].text = text
 			text:SetPoint("TOPLEFT", item, "TOPLEFT", 5, 0)
 		end
-		print( "Bars built" )
+		--print( "Bars built" )
 	end
 end
 Rested.InitCallback( Rested.UIBuildBars )

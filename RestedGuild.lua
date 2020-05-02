@@ -48,7 +48,7 @@ function Rested.GuildStandingReport( realm, name, charStruct )
 				charStruct.guildName,
 				rn )
 		table.insert( Rested.charList,
-				{ ( charStruct.guildRep / ( ( ( charStruct.guildTop or 0 ) - ( charStruct.guildBottom or 0 ) ) + 1 ) ) * 150,
+				{ ( ( charStruct.guildRep or 0 ) / ( ( ( charStruct.guildTop or 0 ) - ( charStruct.guildBottom or 0 ) ) + 1 ) ) * 150,
 					Rested.strOut
 				}
 		)

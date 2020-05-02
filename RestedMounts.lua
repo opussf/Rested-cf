@@ -25,7 +25,8 @@ function Rested.GetCurrentMount( ... )
 				if( Rested.mountSpells[aID] and Rested.mountSpells[aID] == aName ) then
 					--print( aName.." is a mount." )
 					if( not Rested.currentMount ) then
-						print( "You have mounted: "..aName.." at "..date() )
+						-- make this an option at some point
+						--print( "You have mounted: "..aName.." at "..date() )
 						Rested.currentMount = aID
 						--Screenshot()
 						Rested_misc.mountHistory[time()] = aName

@@ -1,6 +1,34 @@
 -- RestedBase.lua
 -- Track 'base' data.
 
+--[[
+RF.timeMultipliers = { [" "] = 1, ["s"] = 1, ["m"] = 60, ["h"] = 3600, ["d"] = 86400, ["w"] = 604800 }
+RF.timeMultiplierOrder = { "w", "d", "h", "m", "s" }
+function RF.TextToSeconds( textIn )
+	-- convert a string to seconds
+	-- the string is in the format of <number><unit>.....
+	-- returns seconds
+	local seconds, current = 0, 0
+	for i = 1, string.len( textIn ) do
+		local char = string.lower( strsub( textIn, i, i ) )
+		local multiplier = RF.timeMultipliers[char]
+		if multiplier then
+			current = current * multiplier
+			seconds = seconds + current
+			current = 0
+		elseif char == tostring( tonumber( char ) ) then
+			current = current * 10
+			current = current + tonumber( char )
+		end
+		--print( char..": "..seconds.." + ("..current.." * "..(multiplier or "")..")" )
+	end
+	seconds = seconds + current
+	return seconds
+end
+]]
+
+
+
 -- ignore
 -- allows the user to ignore an alt for a bit of time (set with options)
 -- sets 'ignore' which is a timestamp for when to stop ignoring.
@@ -55,7 +83,7 @@ function Rested.SaveRestedState()
 	Rested_restedState[Rested.realm][Rested.name].xpNow = UnitXP( "player" )
 	Rested_restedState[Rested.realm][Rested.name].xpMax = Rested.xpMax
 	Rested_restedState[Rested.realm][Rested.name].isResting = IsResting()
-	Rested_restedState[Rested.realm][Rested.name].rested = Rested.restedValue
+	Rested_restedState[Rested.realm][Rested.name].rested = Rested.restedValue   -- this is how much rested XP you have
 	Rested_restedState[Rested.realm][Rested.name].restedPC = Rested.restedPC
 end
 
@@ -174,7 +202,7 @@ function Rested.RestingCharacters( realm, name, charStruct )
 	-- takes the realm, name, charStruct
 	-- appends to the global Rested.charList
 	-- returns 1 on success, 0 on fail
-	if (charStruct.lvlNow ~= Rested.maxLevel and charStruct.restedPC < 150) or
+	if (charStruct.lvlNow ~= Rested.maxLevel and charStruct.restedPC <= 149) or
 			(realm == Rested.realm and name == Rested.name) then
 		local restedStr, restedVal, code, timeTillRested = Rested.FormatRested( charStruct )
 		Rested.strOut = string.format("% 2d%s %s", charStruct.lvlNow, code, restedStr)
@@ -218,14 +246,25 @@ function Rested.NagCharacters( realm, name, charStruct )
 	-- takes the realm, name, charStruct
 	-- appends to the global Rested.charList
 	-- returns 1 on success, 0 on fail
+	local reportStr = "%d :: %s : %s"  -- (lvl Now) :: timeSince : Name
 	rn = Rested.FormatName( realm, name )
 	local timeSince = time() - charStruct.updated
-	if( charStruct.lvlNow == Rested.maxLevel and
+	if( charStruct.lvlNow == Rested.maxLevel and  -- maxLevel char in the NAG range
 			timeSince >= Rested_options.nagStart and
 			timeSince <= Rested_options.staleStart ) then
-		Rested.strOut = format( "%d :: %s : %s", charStruct.lvlNow, SecondsToTime( timeSince ), rn )
+		Rested.strOut = string.format( reportStr, charStruct.lvlNow, SecondsToTime( timeSince ), rn )
 		table.insert( Rested.charList, {(timeSince/(Rested_options.staleStart))*150, Rested.strOut} )
 		return 1
+	end
+	if( charStruct.lvlNow < Rested.maxLevel and charStruct.restedPC <= 149 ) then -- leveling character
+		local restedStr, restedVal, code, timeTillRested = Rested.FormatRested( charStruct )
+		rs = Rested.formatRestedStruct  -- side effect of FormatRested()
+		if( ( not rs.lvlPCLeft or restedVal >= rs.lvlPCLeft ) and -- lvlPCLeft is not set if you are fully rested
+				restedVal <= 250 ) then  -- 200 % rested.   Let it expire after a time.
+			Rested.strOut = string.format( reportStr, charStruct.lvlNow, restedStr, rn )
+			table.insert( Rested.charList, { restedVal, Rested.strOut } )
+			return 1
+		end
 	end
 	return 0
 end
