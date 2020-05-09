@@ -1,8 +1,8 @@
 ## Interface: 80200
 ## Title: Rested Reporter
-## Notes: Rested Tracker for alts v3.2.0
+## Notes: Rested Tracker for alts v3.3.0
 ## Author: opussf
-## Version: 3.2.0
+## Version: 3.3.0
 ## Description: Track stats for your alts.
 ## SavedVariables: Rested_restedState Rested_misc Rested_options
 Rested.lua
@@ -20,3 +20,4 @@ RestedGold.lua
 
 RestedAzerite.lua
 RestedProfessions.lua
+RestedAuctions.lua
