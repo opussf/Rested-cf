@@ -3,7 +3,7 @@
 	<!--<Script file="Rested.lua"/> -->
 	<!-- Version 2.0 -->
 
-	<Frame name="RestedFrame" frameStrata="BACKGROUND" toplevel="false" parent="UIParent" enableMouse="false" movable="false">
+	<Frame name="RestedFrame" toplevel="false" parent="UIParent" enableMouse="false" movable="false">
 		<Scripts>
 			<OnLoad>
 				Rested.OnLoad()

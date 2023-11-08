@@ -1,40 +1,64 @@
 -- RestedBase.lua
 -- Track 'base' data.
 
---[[
-RF.timeMultipliers = { [" "] = 1, ["s"] = 1, ["m"] = 60, ["h"] = 3600, ["d"] = 86400, ["w"] = 604800 }
-RF.timeMultiplierOrder = { "w", "d", "h", "m", "s" }
-function RF.TextToSeconds( textIn )
+Rested.timeMultipliers = { [" "] = 1, ["s"] = 1, ["m"] = 60, ["h"] = 3600, ["d"] = 86400, ["w"] = 604800 }
+-- RF.timeMultiplierOrder = { "w", "d", "h", "m", "s" }
+function Rested.TextToSeconds( textIn )
 	-- convert a string to seconds
-	-- the string is in the format of <number><unit>.....
-	-- returns seconds
-	local seconds, current = 0, 0
-	for i = 1, string.len( textIn ) do
-		local char = string.lower( strsub( textIn, i, i ) )
-		local multiplier = RF.timeMultipliers[char]
-		if multiplier then
-			current = current * multiplier
-			seconds = seconds + current
-			current = 0
-		elseif char == tostring( tonumber( char ) ) then
-			current = current * 10
-			current = current + tonumber( char )
+	-- the string is in the format of <number><unit>....
+	-- returns seconds or nil
+	if( textIn and strlen( textIn ) > 0 ) then
+		local seconds, current = 0, 0
+		local hasValue = false
+		for i = 1, string.len( textIn ) do
+			local char = string.lower( strsub( textIn, i, i ) )
+			local multiplier = Rested.timeMultipliers[char]
+			if multiplier then
+				current = current * multiplier
+				seconds = seconds + current
+				current = 0
+			elseif char == tostring( tonumber ( char ) ) then
+				hasValue = true
+				current = current * 10
+				current = current + tonumber( char )
+			end
+			--print( char..": "..seconds.." + ("..current.." * "..(multiplier or "")..")" )
 		end
-		--print( char..": "..seconds.." + ("..current.." * "..(multiplier or "")..")" )
+		seconds = seconds + current
+		--print( "Final seconds: ".. ( hasValue and seconds or "nil" ) )
+		return( hasValue and seconds or nil )
 	end
-	seconds = seconds + current
-	return seconds
 end
-]]
-
-
 
 -- ignore
 -- allows the user to ignore an alt for a bit of time (set with options)
 -- sets 'ignore' which is a timestamp for when to stop ignoring.
 -- absence of 'ignore' means to not ignore alt.
 function Rested.SetIgnore( param )
+	-- do the original search and ignore
 	if( param and strlen( param ) > 0 ) then
+		-- break the param into strings seperated by spaces
+		local charMatches = {}
+		for ignoreStr in string.gmatch( param, "%S+" ) do
+			table.insert( charMatches, ignoreStr )
+		end
+		-- test for time values from the back
+		local isTime = true
+		local seconds = 0
+		while( isTime ) do
+			secFromText = Rested.TextToSeconds( charMatches[#charMatches] )
+			if( secFromText ~= nil ) then
+				seconds = seconds + secFromText
+				Rested_options.ignoreTime = seconds
+				charMatches[#charMatches] = nil
+
+			else
+				isTime = false
+			end
+		end
+		param = table.concat( charMatches, " " )  -- concat with spaces
+		--print( "Param: "..param )
+
 		param = string.upper( param )
 		Rested.Print( "SetIgnore: "..param )
 		for realm in pairs( Rested_restedState ) do
@@ -61,13 +85,17 @@ end
 function Rested.IgnoredCharacters( realm, name, charStruct )
 	if( charStruct.ignore ) then
 		timeToGo = charStruct.ignore - time()
-		Rested.strOut = string.format( "%s: %s", SecondsToTime( timeToGo ), Rested.FormatName( realm, name ) )
+		if( timeToGo >= ( Rested_options.ignoreDateLimit and Rested_options.ignoreDateLimit or 7776000 ) ) then
+			Rested.strOut = string.format( "%s: %s", date( "%x %X", charStruct.ignore ), Rested.FormatName( realm, name ) )
+		else
+			Rested.strOut = string.format( "%s: %s", SecondsToTime( timeToGo ), Rested.FormatName( realm, name ) )
+		end
 		table.insert( Rested.charList, {(timeToGo/Rested_options.ignoreTime)*150, Rested.strOut} )
 		return 1
 	end
 	return 0
 end
-Rested.commandList["ignore"] = { ["func"] = Rested.SetIgnore, ["help"] = {"<search>", "Ignore matched chars, or show ignored." } }
+Rested.commandList["ignore"] = { ["func"] = Rested.SetIgnore, ["help"] = {"<search> [ignore Duration]", "Ignore matched chars, or show ignored." } }
 Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() Rested.ForAllChars( Rested.UpdateIgnore, true ); end )
 Rested.dropDownMenuTable["Ignore"] = "ignore"
 
@@ -227,12 +255,12 @@ Rested.commandList["all"] = {["help"] = {"","Show all characters"}, ["func"] = f
 function Rested.AllCharacters( realm, name, charStruct )
 	-- 80 (15.5%): Realm:Name
 	rn = Rested.FormatName( realm, name )
-	Rested.strOut = string.format( "%d (%s): %s",
-		charStruct.lvlNow,
+	Rested.strOut = string.format( "%0.2f (%s): %s",
+		charStruct.lvlNow + ((charStruct.xpNow / charStruct.xpMax )),
 		--(charStruct.xpNow / charStruct.xpMax) * 100,
 		select(1,Rested.FormatRested(charStruct)),
 		rn )
-	table.insert( Rested.charList, {(charStruct.lvlNow / Rested.maxLevel) * 150, Rested.strOut} )
+	table.insert( Rested.charList, {((charStruct.lvlNow + (charStruct.xpNow / charStruct.xpMax ))/ Rested.maxLevel) * 150, Rested.strOut} )
 	return 1
 end
 
@@ -266,6 +294,12 @@ function Rested.NagCharacters( realm, name, charStruct )
 			return 1
 		end
 	end
+	useColor = useColor and ( realm == Rested.realm and name == Rested.name )
+	if( charStruct.isResting == false and not ( realm == Rested.realm and name == Rested.name ) ) then
+		Rested.strOut = string.format( reportStr .. " NOT RESTING", charStruct.lvlNow, SecondsToTime( timeSince ), rn )
+		table.insert( Rested.charList, { (timeSince/(Rested_options.staleStart))*150, Rested.strOut } )
+		return 1
+	end
 	return 0
 end
 Rested.InitCallback( function()
@@ -281,13 +315,17 @@ Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
 )
 function Rested.SetNag( inVal )
 	-- This sets the NagTime (maxCutOff) to a number of seconds -- change the name of the setting (and how the setting is used)
-	local previousNag = SecondsToTime( Rested_options.nagStart )
 	local newNag = Rested.DecodeTime( inVal, "d" )
-	if( newNag <= Rested_options.staleStart ) then
-		Rested_options["nagStart"] = newNag
-		Rested.Print( string.format( "nagStart changed from %s to %s", previousNag, SecondsToTime( newNag ) ) )
+	if newNag > 0 then
+		local previousNag = SecondsToTime( Rested_options.nagStart )
+		if( newNag <= Rested_options.staleStart ) then
+			Rested_options["nagStart"] = newNag
+			Rested.Print( string.format( "nagStart changed from %s to %s", previousNag, SecondsToTime( newNag ) ) )
+		else
+			Rested.Print( "nagStart cannot be greater than staleStart" )
+		end
 	else
-		Rested.Print( "nagStart cannot be greater than staleStart" )
+		Rested.Print( string.format( "nagStart is set at %s", SecondsToTime( Rested_options.nagStart ) ) )
 	end
 end
 Rested.commandList["setnag"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up in the nag report."},
@@ -316,13 +354,17 @@ function Rested.StaleCharacters( realm, name, charStruct )
 	return 0
 end
 function Rested.SetStale( inVal )
-	local previousStale = SecondsToTime( Rested_options.staleStart )
 	local newStale = Rested.DecodeTime( inVal, "d" )
-	if( newStale >= Rested_options.nagStart ) then
-		Rested_options["staleStart"] = newStale
-		Rested.Print( string.format( "staleStart changed from %s to %s", previousStale, SecondsToTime( newStale ) ) )
+	if newStale > 0 then
+		local previousStale = SecondsToTime( Rested_options.staleStart )
+		if( newStale >= Rested_options.nagStart ) then
+			Rested_options["staleStart"] = newStale
+			Rested.Print( string.format( "staleStart changed from %s to %s", previousStale, SecondsToTime( newStale ) ) )
+		else
+			Rested.Print( "staleStart cannot be less than nagStart" )
+		end
 	else
-		Rested.Print( "staleStart cannot be less than nagStart" )
+		Rested.Print( string.format( "staleStart is set at %s", SecondsToTime( Rested_options.staleStart ) ) )
 	end
 end
 Rested.commandList["setstale"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up as stale."},

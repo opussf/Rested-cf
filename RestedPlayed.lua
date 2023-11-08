@@ -5,8 +5,15 @@ function Rested.StoreTimePlayed( total, currentLvl )
 	Rested_restedState[Rested.realm][Rested.name].totalPlayed = total
 end
 
-Rested.EventCallback( "PLAYER_LEAVING_WORLD", function() RequestTimePlayed(); end )
-Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() RequestTimePlayed(); end )
+function Rested.TimePlayedRequest()
+	if not Rested.lastTimePlayedRequest or Rested.lastTimePlayedRequest+600 < time() then
+		Rested.lastTimePlayedRequest = time()
+		RequestTimePlayed()
+	end
+end
+
+Rested.EventCallback( "PLAYER_LEAVING_WORLD", function() Rested.lastTimePlayedRequest=nil; Rested.TimePlayedRequest() end )
+Rested.EventCallback( "PLAYER_ENTERING_WORLD", Rested.TimePlayedRequest )
 Rested.EventCallback( "TIME_PLAYED_MSG", Rested.StoreTimePlayed )
 
 Rested.dropDownMenuTable["Played"] = "played"

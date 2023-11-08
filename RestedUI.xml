@@ -7,15 +7,16 @@
 		<BarColor r="0.0" g="0.3" b="0.9" />
 	</StatusBar>
 
-	<FontString name="Rested_RestedBarTextTemplate" inherits="GameFontNormalSmall" wraponspaces="false" virtual="true">
+	<FontString name="Rested_RestedBarTextTemplate" inherits="GameFontNormalSmall" virtual="true">
 		<Color r="1" g="1" b="1" />
 	</FontString>
 
-	<Frame name="RestedUIFrame" frameStrata="BACKGROUND" toplevel="false" parent="UIParent" enableMouse="true" movable="true">
+	<Frame name="RestedUIFrame" toplevel="false" parent="UIParent" enableMouse="true" movable="true">
 		<Size x="316" y="125" />
 		<Anchors>
 			<Anchor point="LEFT"/>
 		</Anchors>
+		<!--
 		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 			<BackgroundInsets>
 				<AbsInset left="0" right="0" top="0" bottom="0"/>
@@ -27,6 +28,7 @@
 				<AbsValue val="16"/>
 			</EdgeSize>
 		</Backdrop>
+		-->
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture setAllPoints="true">
@@ -35,7 +37,7 @@
 			</Layer>
 			<Layer level="ARTWORK">
 				<!-- Frame Title -->
-				<FontString name="$parent_TitleText" frameStrata="ARTWORK" inherits="GameFontHighlight" text="Rested">
+				<FontString name="$parent_TitleText" inherits="GameFontHighlight" text="Rested">
 					<Size>
 						<AbsDimension x="250" y="14"/>
 					</Size>
@@ -50,7 +52,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parent_Close" inherits="UIPanelCloseButton" parent="RestedUIFrame" frameStrata="OVERLAY">
+			<Button name="$parent_Close" inherits="UIPanelCloseButton" parent="RestedUIFrame">
 				<Anchors>
 					<Anchor point="TOPRIGHT">
 						<Offset x="4" y="6"/>
@@ -68,6 +70,7 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<!--
 				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 					<BackgroundInsets>
 						<AbsInset left="5" right="5" top="5" bottom="5"/>
@@ -79,7 +82,9 @@
 						<AbsValue val="16"/>
 					</EdgeSize>
 				</Backdrop>
+				-->
 				<ScrollChild>
+					<!--
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
 							<Offset>
@@ -87,6 +92,7 @@
 							</Offset>
 						</Anchor>
 					</Anchors>
+					-->
 					<Frame name="RestedScrollContents">
 						<Size x="300" y="84" />
 					</Frame>
@@ -97,6 +103,7 @@
 				<Anchors>
 					<Anchor point="Right" relativePoint="RIGHT" relativeTo="RestedScrollFrame"/>
 				</Anchors>
+				<!--
 				<Backdrop edgeFile="Interface\Buttons\UI-SliderBar-Border"
 						bgFile="Interface\Buttons\UI-SliderBar-Background"
 						tile="true">
@@ -110,6 +117,7 @@
 						<AbsInset left="3" right="3" top="6" bottom="6"/>
 					</BackgroundInsets>
 				</Backdrop>
+				-->
 				<Scripts>
 					<OnLoad>self:SetValue(0)</OnLoad>
 					<OnValueChanged>Rested.UIUpdateFrame()</OnValueChanged>

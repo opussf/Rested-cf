@@ -1,28 +1,10 @@
 #!/usr/bin/env lua
 
-accountPath = arg[1]
-report = string.lower( arg[2] or "resting" )
-
-pathSeparator = string.sub(package.config, 1, 1) -- first character of this string (http://www.lua.org/manual/5.2/manual.html#pdf-package.config)
--- remove 'extra' separators from the end of the given path
-while (string.sub( accountPath, -1, -1 ) == pathSeparator) do
-	accountPath = string.sub( accountPath, 1, -2 )
-end
--- append the expected location of the datafile
-dataFilePath = {
-	accountPath,
-	"SavedVariables",
-	"Rested.lua"
-}
-dataFile = table.concat( dataFilePath, pathSeparator )
-
---print( "DataFile: "..dataFile )
---print( "AppFile : "..arg[0] )
-
-srcFilePathTable = {}
-tocFileTable = {}
+-- first character of this string (http://www.lua.org/manual/5.2/manual.html#pdf-package.config)
+pathSeparator = string.sub(package.config, 1, 1)
 
 function ParsePath( pathIn, separator )
+	srcFilePathTable = {}
 	local j = 0
 	while true do
 		local i, j, subName = string.find( pathIn, "(.+)"..separator )
@@ -32,9 +14,10 @@ function ParsePath( pathIn, separator )
 		pathIn = string.sub( pathIn, j )
 		--print( pathIn )
 	end
-	return( table.concat( srcFilePathTable, pathSeparator ) )
+	return table.concat( srcFilePathTable, pathSeparator ), srcFilePathTable
 end
 function TableFromTOC( tocFile )
+	tocFileTable = {}
 	local f = io.open( tocFile, "r" )
 	local tocContents = f:read("*all")  -- read the whole file
 	--print( tocContents )
@@ -45,11 +28,14 @@ function TableFromTOC( tocFile )
 		tocContents = string.sub( tocContents, j )
 		--print( tocContents )
 	end
-	return #tocFileTable
+	return tocFileTable
 end
 function FileExists( name )
-	local f = io.open( name, "r" )
-	if f then io.close( f ) return true else return false end
+	if name then
+		local f = io.open( name, "r" )
+		if f then io.close( f ) return true else return false end
+	end
+	return false
 end
 function DoFile( filename )
 	local f = assert( loadfile( filename ) )
@@ -78,7 +64,8 @@ function SecondsToTime( secondsIn, noSeconds, notAbbreviated, maxCount )
 	secondsIn = secondsIn - (hours * 3600)
 
 	minutes = math.floor( secondsIn / 60 )
-	seconds = secondsIn - (minutes * 60)
+	seconds = math.floor( secondsIn - (minutes * 60) )
+
 
 	-- format output
 	local includeZero = false
@@ -108,6 +95,7 @@ max = math.max
 min = math.min
 format = string.format
 time = os.time
+date = os.date
 unpack = table.unpack
 Frame = {
 		["__isShown"] = true,
@@ -188,69 +176,84 @@ function CreateStatusBar( name, ... )
 
 	return StatusBar
 end
-
--- Create needed frames
-RestedFrame = CreateFrame( "Frame", "RestedFrame" )
-RestedUIFrame = CreateFrame( "Frame", "RestedUIFrame" )
-RestedUIFrame_TitleText = CreateFontString( "RestedUIFrame_TitleText" )
-RestedUIFrame_TitleText:SetText( report.." Report is Empty" )
-RestedScrollFrame_VSlider = CreateFrame( "Frame", "RestedScrollFrame_VSlider" )
-UIDropDownMenu_SetText = function() end
-
 function DecolorText( textIn )
 	textIn = string.gsub( textIn, "|c%x%x%x%x%x%x%x%x", "" )
 	textIn = string.gsub( textIn, "|r", "" )
 	return( textIn )
 end
 
+-- Create needed frames
+RestedFrame = CreateFrame( "Frame", "RestedFrame" )
+RestedUIFrame = CreateFrame( "Frame", "RestedUIFrame" )
+RestedUIFrame_TitleText = CreateFontString( "RestedUIFrame_TitleText" )
+RestedScrollFrame_VSlider = CreateFrame( "Frame", "RestedScrollFrame_VSlider" )
+UIDropDownMenu_SetText = function() end
 
+-- Work down the parameters
 srcFilePath = ParsePath( arg[0], pathSeparator )
 tocFile = srcFilePath..pathSeparator.."Rested.toc"
 
--- parse and require files from .toc file
-if( FileExists( tocFile ) ) then
-	TableFromTOC( tocFile )
+accountPath = arg[1]
+if( accountPath ) then
+	-- remove 'extra' separators from the end of the given path
+	while (string.sub( accountPath, -1, -1 ) == pathSeparator) do
+		accountPath = string.sub( accountPath, 1, -2 )
+	end
+	-- append the expected location of the datafile
+	dataFilePath = {
+		accountPath,
+		"SavedVariables",
+		"Rested.lua"
+	}
+	dataFile = table.concat( dataFilePath, pathSeparator )
+end
+
+if( tocFile and FileExists( tocFile ) and
+		accountPath and dataFile and FileExists( dataFile ) ) then
+	tocFileTable = TableFromTOC( tocFile )
 	package.path = srcFilePath..pathSeparator.."?.lua;" .. package.path
 	for _,f in pairs( tocFileTable ) do
 		require( f )
 	end
-else
-	io.stderr:write( "Something is wrong.  Lets review:\n")
-	io.stderr:write( "TOC file exists   : "..( FileExists( tocFile ) and " True" or "False" ).."\n" )
-	io.exit( 1 )
-end
--- Call init Functions
-Rested.showNumBars = 50
-Rested.UIBuildBars()
---for _,func in pairs( Rested.initFunctions ) do
---	func()
---end
-
--- test and load data file
-if dataFile and FileExists( dataFile ) then
+	-- Call init Functions
+	Rested.showNumBars = 50
+	Rested.UIBuildBars()
 	DoFile( dataFile )
-else
-	io.stderr:write( "Something is wrong.  Lets review:\n" )
-	io.stderr:write( "Data file exists  : "..( FileExists( dataFile ) and " True" or "False" ).."\n" )
-end
 
--- MaxLevel from the data file
-Rested.maxLevel = Rested_misc["maxLevel"]
-Rested.ForAllChars( Rested.UpdateIgnore, true )
+	-- MaxLevel from the data file
+	Rested.maxLevel = Rested_misc["maxLevel"]
+	Rested.ForAllChars( Rested.UpdateIgnore, true )
 
--- command List
-if Rested.commandList and report then
-	if( Rested.commandList[report] ) then
-		Rested.commandList[report].func()
-	end
-	print( RestedUIFrame_TitleText:GetText() )
-	for i, bar in pairs( Rested.bars ) do
-		textOut = bar.text:GetText()
-		if( #textOut > 0 ) then
-			print( DecolorText( textOut ) )
+	-- command List
+	if not arg[2] then arg[2] = "resting"; end
+	reportsTable = {table.unpack( arg, 2 )}
+	for _, report in pairs( reportsTable ) do
+		RestedUIFrame_TitleText:SetText( report.." Report is Empty" )
+
+		if Rested.commandList and report then
+			if( Rested.commandList[report] ) then
+				Rested.commandList[report].func()
+			end
+			print( RestedUIFrame_TitleText:GetText() )
+			for i, bar in pairs( Rested.bars ) do
+				textOut = bar.text:GetText()
+				if( #textOut > 0 ) then
+					print( DecolorText( textOut ) )
+				end
+			end
 		end
 	end
+else
+	io.stderr:write( "Something is wrong.  Lets review:\n\n" )
+	io.stderr:write( "Usage: Rested_Online.lua <AccountPath> [report name list]\n" )
+	io.stderr:write( "[report name list] defaults to \"resting\"\n\n" )
+	io.stderr:write( "Version            : 3.4.4\n" )
+	io.stderr:write( "TOC file           : "..( tocFile or "False" ).."\n" )
+	io.stderr:write( "TOC file found     : "..( FileExists( tocFile ) and " True" or "False" ).."\n" )
+	io.stderr:write( "Account Path given : "..( accountPath and " True" or "False" ).."\n" )
+	if not accountPath then
+		io.stderr:write( "Please provide the path to the WTF/Account/<yourAccount>\n" )
+	end
+	io.stderr:write( "Data file          : "..( dataFile or "False" ).."\n" )
+	io.stderr:write( "Data file exists   : "..( FileExists( dataFile ) and " True" or "False" ).."\n" )
 end
-
-
-
