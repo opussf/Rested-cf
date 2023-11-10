@@ -60,7 +60,6 @@ function Rested.OnUpdate( elapsed )
 		func( elapsed )
 	end
 end
-
 function Rested.Print( msg, showName )
 	-- print to the chat frame
 	-- set showName to false to suppress the addon name printing
@@ -69,7 +68,8 @@ function Rested.Print( msg, showName )
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
-function Rested.PrintHelp()
+function Rested.PrintHelp( command )
+	command = command and string.lower(command)
 	Rested.Print( RESTED_MSG_ADDONNAME.." ("..RESTED_MSG_VERSION..") by "..RESTED_MSG_AUTHOR )
 	local sortedKeys = {}
 	for text in pairs( Rested.commandList ) do
@@ -78,11 +78,20 @@ function Rested.PrintHelp()
 	table.sort( sortedKeys, function( a, b ) return string.lower(a) < string.lower(b) end )
 	for _, cmd in ipairs( sortedKeys ) do
 		info = Rested.commandList[cmd]
-		Rested.Print( string.format( "   %s %s -> %s",
-			cmd, info.help[1], info.help[2] ), false )
+		if command and command == cmd then
+			Rested.Print( string.format( "  %s %s -> %s",
+				cmd, info.help[1], info.help[2] ), false )
+			if info.desc then
+				for _, l in ipairs( info.desc ) do
+					Rested.Print( l, false )
+				end
+			end
+		elseif command == "" then
+			Rested.Print( string.format( "   %s %s -> %s",
+				cmd, info.help[1], info.help[2] ), false )
+		end
 	end
 end
---Rested.commandList["help"] = { ["help"] = {"", "Show help"}, ["func"] = Rested.PrintHelp }
 function Rested.HelpReport( )
 	-- normally takes realm, name, charStruct
 	index = 1
@@ -100,20 +109,18 @@ function Rested.HelpReport( )
 			table.insert( Rested.charList, { 150-(index * 0.01), string.format( "%s %s -> %s",
 					cmd, info.help[1], info.help[2] ) } )
 		end
-
 		return index
 	end
 	return 0
 end
-
 Rested.dropDownMenuTable["Help"] = "help"
-Rested.commandList["help"] = { ["help"] = {"","Show help"}, ["func"] = function()
-		Rested.PrintHelp()
+Rested.commandList["help"] = { ["help"] = {"<command>","Show help. Specific info for command if given."}, ["func"] = function(...)
+		Rested.PrintHelp(...)
 		Rested.reportName = "Help"
 		Rested.UIShowReport( Rested.HelpReport )
-	end
+	end,
+	["desc"] = {"Show help for each command."}
 }
-
 function Rested.ParseCmd( msg )
 	msg = string.lower( msg )
 	if msg then

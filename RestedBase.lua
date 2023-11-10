@@ -268,7 +268,11 @@ Rested.dropDownMenuTable["Nag"] = "nag"
 Rested.commandList["nag"] = {["help"] = {"","Show nag characters"}, ["func"] = function()
 		Rested.reportName = "Nag Characters"
 		Rested.UIShowReport( Rested.NagCharacters )
-	end
+	end,
+	["desc"] = {"Leveling toons will be shown if their rested pool covers the rest of the current level.",
+				"Leveling toons won't be shown if they were fully rested when logged out.",
+				"Max level toons will be shown if they have not been played from nagStart to staleStart."
+	}
 }
 function Rested.NagCharacters( realm, name, charStruct )
 	-- takes the realm, name, charStruct
@@ -310,6 +314,7 @@ Rested.InitCallback( function()
 Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
 		if( Rested.ForAllChars( Rested.NagCharacters ) > 0 ) then
 			Rested.Command( "nag" )
+			Rested.autoCloseAfter = Rested_options.nagTimeOut and time()+Rested_options.nagTimeOut or nil
 		end
 	end
 )
@@ -330,6 +335,29 @@ function Rested.SetNag( inVal )
 end
 Rested.commandList["setnag"] = {["help"] = {"#[s|m|h|d|w]", "Set the time before a max level character shows up in the nag report."},
 		["func"] = Rested.SetNag }
+
+function Rested.SetNagTimeOut( inVal )
+	--print("SetNagTimeOut( "..inVal.." )" )
+	local previousTimeOut = (Rested_options.nagTimeOut and SecondsToTime( Rested_options.nagTimeOut ) or "Do Not Auto Hide" )
+	-- This set the Timeout for the Nag report
+	if( inVal == "" ) then
+		Rested.Print( "NagTimeOut currently set to: "..previousTimeOut )
+	else
+		local newTimeOut = Rested.DecodeTime( inVal, "d" )
+		--print( "newTimeOut: "..newTimeOut )
+		if newTimeOut >= 0 then
+			Rested_options["nagTimeOut"] = newTimeOut
+			Rested.Print( string.format( "NagTimeOut changed from %s to %s", previousTimeOut, SecondsToTime( newTimeOut ) ) )
+		end
+		if Rested_options.nagTimeOut == 0 then
+			Rested_options.nagTimeOut = nil
+		end
+	end
+end
+Rested.commandList["setnagtimeout"] = {["help"] = {"#[s|m|h|d|w]", "Set the time to autoshow the nag window."},
+	["func"] = Rested.SetNagTimeOut,
+	["desc"] = {"Set how long the nag report is auto shown for."},
+}
 
 -- Stale characters
 Rested.dropDownMenuTable["Stale"] = "stale"
