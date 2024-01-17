@@ -14,7 +14,6 @@ end
 
 Rested.EventCallback( "PLAYER_EQUIPMENT_CHANGED", Rested.GetILvl )
 
-
 Rested.dropDownMenuTable["iLvl"] = "ilvl"
 Rested.commandList["ilvl"] = { ["help"] = {"","Show iLvl report"}, ["func"] = function()
 		Rested.reportName = "Item Level"

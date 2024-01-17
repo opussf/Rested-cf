@@ -278,6 +278,12 @@ function Rested.NagCharacters( realm, name, charStruct )
 	-- takes the realm, name, charStruct
 	-- appends to the global Rested.charList
 	-- returns 1 on success, 0 on fail
+	if( charStruct.nonag ) then
+		if( charStruct.nonag > time() ) then
+			return 0
+		else charStruct.nonag = nil
+		end
+	end
 	local reportStr = "%d :: %s : %s"  -- (lvl Now) :: timeSince : Name
 	rn = Rested.FormatName( realm, name )
 	local timeSince = time() - charStruct.updated
@@ -358,6 +364,56 @@ Rested.commandList["setnagtimeout"] = {["help"] = {"#[s|m|h|d|w]", "Set the time
 	["func"] = Rested.SetNagTimeOut,
 	["desc"] = {"Set how long the nag report is auto shown for."},
 }
+
+function Rested.SetNoNag( param )
+	if( param and strlen( param ) > 0 ) then
+		-- break the param into strings seperated by spaces
+		local charMatches = {}
+		for ignoreStr in string.gmatch( param, "%S+" ) do
+			table.insert( charMatches, ignoreStr )
+		end
+		-- test for time values from the back
+		local isTime = true
+		local seconds = 0
+		while( isTime ) do
+			secFromText = Rested.TextToSeconds( charMatches[#charMatches] )
+			if( secFromText ~= nil ) then
+				seconds = seconds + secFromText
+				Rested_options.noNagTime = seconds
+				charMatches[#charMatches] = nil
+			else
+				isTime = false
+			end
+		end
+		Rested_options.noNagTime = Rested_options.noNagTime or (7 * 86400)
+		param = table.concat( charMatches, " " )  -- concat with spaces
+
+		param = string.upper( param )
+		Rested.Print( "NoNag: "..param )
+		for realm in pairs( Rested_restedState ) do
+			for name, struct in pairs( Rested_restedState[realm] ) do
+				if( ( string.find( string.upper( realm ), param ) ) or
+						( string.find( string.upper( name ), param ) ) ) then
+					struct.nonag = time() + Rested_options.noNagTime
+					Rested.Print( string.format( "NoNag for %s:%s for %s", realm, name, SecondsToTime( Rested_options.noNagTime ) ) )
+				end
+			end
+		end
+	end
+end
+function Rested.UpdateNoNag( realm, name, charStruct )
+	if( charStruct.nonag and
+			( time() >= charStruct.nonag or (Rested.realm == realm and Rested.name == name) ) ) then
+		charStruct.nonag = nil
+	end
+end
+
+Rested.commandList["nonag"] = {
+		["func"] = Rested.SetNoNag,
+		["help"] = { "<search> [ignore duration]", "Remove matched chars from the nag list for duration, or until visited." },
+		["desc"] = {"Remove this player from the nag report for duration time, or until visited."}
+}
+Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() Rested.ForAllChars( Rested.UpdateNoNag, true ); end )
 
 -- Stale characters
 Rested.dropDownMenuTable["Stale"] = "stale"

@@ -139,15 +139,15 @@ C_AuctionHouse.PostItem = function( ... )
 end
 
 -- Misc functions
-function Rested.AuctionsOwnedAuctionsUpdated( ... )
-	local a = select( 1, ... ) or "nil"
-	Rested.Print( "OWNED_AUCTIONS_UPDATED( "..a.." )" )
-end
+-- function Rested.AuctionsOwnedAuctionsUpdated( ... )
+-- 	local a = select( 1, ... ) or "nil"
+-- 	Rested.Print( "OWNED_AUCTIONS_UPDATED( "..a.." )" )
+-- end
 
-Rested.EventCallback( "OWNED_AUCTIONS_UPDATED", Rested.AuctionsOwnedAuctionsUpdated )
+-- Rested.EventCallback( "OWNED_AUCTIONS_UPDATED", Rested.AuctionsOwnedAuctionsUpdated )
 
-function Rested.ScanMail()
-	Rested.Print( "ScanMail" )
-end
+-- function Rested.ScanMail()
+-- 	Rested.Print( "ScanMail" )
+-- end
 
-Rested.EventCallback( "MAIL_SHOW", Rested.ScanMail )
+-- Rested.EventCallback( "MAIL_SHOW", Rested.ScanMail )

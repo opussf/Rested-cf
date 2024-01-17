@@ -76,6 +76,7 @@ function Rested.UIOnUpdate( arg1 )
 	end
 	if( Rested.autoCloseAfter and Rested.autoCloseAfter <= time() ) then
 		RestedUIFrame:Hide()
+		Rested.autoCloseAfter = nil
 	end
 end
 
