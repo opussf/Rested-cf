@@ -92,6 +92,12 @@ function Rested.UIShowReport( reportFunction )
 	Rested.autoCloseAfter = nil
 end
 
+function Rested.ResetUIPosition()
+	RestedUIFrame:ClearAllPoints()
+	RestedUIFrame:SetPoint("LEFT", "$parent", "LEFT")
+end
+Rested.commandList["uireset"] = { ["help"] = {"","Reset the location of the UI frame"}, ["func"] = Rested.ResetUIPosition }
+
 -- DropDown code
 function Rested.UIDropDownOnClick( self, cmd )
 	--print( "Rested.UIDropDownOnClick( "..cmd.." )" )
