@@ -91,19 +91,19 @@ function ExportXML()
 	strOut = strOut .. "\t<maxiLvl>"..Rested_misc.maxiLvl.."</maxiLvl>\n";
 	strOut = strOut .. "\t<cacheRate>6</cacheRate>\n"
 
-	for realm, chars in pairs( Rested_restedState ) do
-		for name, c in pairs(chars) do
+	for realm, chars in sorted_pairs( Rested_restedState ) do
+		for name, c in sorted_pairs(chars) do
 			if not c.ignore or c.ignore < os.time() then
 				charStruct = MakeCharTable( realm, name, c )
 				charOut = {}
-				for k,v in pairs(charStruct) do
+				for k,v in sorted_pairs(charStruct) do
 					table.insert(charOut, string.format('%s="%s"', k, v))
 				end
 				strOut = strOut .. '\t<c '..table.concat( charOut, " " )..'/>\n'
 			end
 		end
 	end
-	for _, st in pairs( guildList ) do
+	for _, st in sorted_pairs( guildList ) do
 		strOut = strOut .. string.format('\t<gi gn="%s" rn="%s" />\n', st.guildName, st.realm)
 	end
 
@@ -119,12 +119,12 @@ function ExportJSON()
 	strOut = strOut .. "\t\"chars\": [\n"
 
 	outTable = {}
-	for realm, chars in pairs(Rested_restedState) do
-		for name, c in pairs(chars) do
+	for realm, chars in sorted_pairs(Rested_restedState) do
+		for name, c in sorted_pairs(chars) do
 			if not c.ignore or c.ignore < os.time() then
 				charStruct = MakeCharTable( realm, name, c )
 				charOut = {}
-				for k,v in pairs(charStruct) do
+				for k,v in sorted_pairs(charStruct) do
 					if type(v) == "number" then
 						table.insert(charOut, string.format('"%s":%s', k, v))
 					else
@@ -141,7 +141,7 @@ function ExportJSON()
 	strOut = strOut .. '\t"guilds": [\n'
 
 	outTable = {}
-	for _, st in pairs( guildList ) do
+	for _, st in sorted_pairs( guildList ) do
 		guildLine = string.format('\t\t{"gn":"%s", "rn":"%s"}', st.guildName, st.realm )
 		table.insert( outTable, guildLine )
 	end
@@ -153,6 +153,19 @@ function ExportJSON()
 	return strOut
 end
 
+function sorted_pairs( tableIn )
+	local keys = {}
+	for k in pairs( tableIn ) do table.insert( keys, k ) end
+	table.sort( keys )
+	local lcv = 0
+	local iter = function()
+		lcv = lcv + 1
+		if keys[lcv] == nil then return nil
+		else return keys[lcv], tableIn[keys[lcv]]
+		end
+	end
+	return iter
+end
 
 functionList = {
 	["xml"] = ExportXML,

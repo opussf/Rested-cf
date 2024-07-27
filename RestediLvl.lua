@@ -13,6 +13,7 @@ function Rested.GetILvl()
 end
 
 Rested.EventCallback( "PLAYER_EQUIPMENT_CHANGED", Rested.GetILvl )
+Rested.EventCallback( "ZONE_CHANGED_NEW_AREA", Rested.GetILvl )
 
 Rested.dropDownMenuTable["iLvl"] = "ilvl"
 Rested.commandList["ilvl"] = { ["help"] = {"","Show iLvl report"}, ["func"] = function()
