@@ -247,7 +247,7 @@ else
 	io.stderr:write( "Something is wrong.  Lets review:\n\n" )
 	io.stderr:write( "Usage: Rested_Online.lua <AccountPath> [report name list]\n" )
 	io.stderr:write( "[report name list] defaults to \"resting\"\n\n" )
-	io.stderr:write( "Version            : 3.9\n" )
+	io.stderr:write( "Version            : 3.9.1\n" )
 	io.stderr:write( "TOC file           : "..( tocFile or "False" ).."\n" )
 	io.stderr:write( "TOC file found     : "..( FileExists( tocFile ) and " True" or "False" ).."\n" )
 	io.stderr:write( "Account Path given : "..( accountPath and " True" or "False" ).."\n" )
