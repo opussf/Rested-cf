@@ -20,7 +20,7 @@ function Rested.GetGuildRep( )
 	-- C_Reputation.GetGuildFactionData
 	factionData = C_Reputation.GetGuildFactionData()
 	if factionData and factionData.name == Rested_restedState[Rested.realm][Rested.name].guildName then
-		Rested.Print("Guild FactionData: "..factionData.name..":"..factionData.reaction..":"..factionData.currentStanding )
+		-- Rested.Print("Guild FactionData: "..factionData.name..":"..factionData.reaction..":"..factionData.currentStanding )
 		return factionData.currentStanding, factionData.currentReationThreshold, factionData.nextReactionThreshold, factionData.reaction
 	end
 end
