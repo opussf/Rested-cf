@@ -63,7 +63,7 @@ Rested.EventCallback( "WEEKLY_REWARDS_ITEM_CHANGED", Rested.Rewards_ItemChanged 
 -- Rested.EventCallback( "WEEKLY_REWARDS_HIDE", Rested.Rewards_Hide )
 
 Rested.InitCallback( function()
-		LoadAddOn("Blizzard_WeeklyRewards")
+		C_AddOns.LoadAddOn("Blizzard_WeeklyRewards")
 		WeeklyRewardsFrame:Show()
 		_, Rested.previousWeekReset = Rested.GetWeeklyQuestResetTime()
 		Rested.ForAllChars( Rested.CurrentWeekly_to_Rewards, true )

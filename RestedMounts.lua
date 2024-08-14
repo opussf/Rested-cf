@@ -19,17 +19,17 @@ function Rested.GetCurrentMount( ... )
 			Rested.BuildMountSpells()
 		end
 		for an=1,40 do
-			aName, _, _, aType, _, _, _, _, _, aID = UnitAura( "player", an )
-			if( aName ) then
-				--print( "Aura "..an..": "..aName.." ("..(aID or "nil")..")" )
-				if( Rested.mountSpells[aID] and Rested.mountSpells[aID] == aName ) then
-					--print( aName.." is a mount." )
+			auraData = C_UnitAuras.GetAuraDataByIndex( "player", an )
+			if( auraData ) then
+				-- print( "Aura "..an..": "..auraData.name.." ("..(auraData.spellId or "nil")..")" )
+				if( Rested.mountSpells[auraData.spellId] and Rested.mountSpells[auraData.spellId] == auraData.name ) then
+					-- print( auraData.name.." is a mount." )
 					if( not Rested.currentMount ) then
 						-- make this an option at some point
-						--print( "You have mounted: "..aName.." at "..date() )
-						Rested.currentMount = aID
+						-- print( "You have mounted: "..auraData.name.." at "..date() )
+						Rested.currentMount = auraData.spellId
 						--Screenshot()
-						Rested_misc.mountHistory[time()] = aName
+						Rested_misc.mountHistory[time()] = auraData.name
 						Rested.PruneByAge( Rested_misc.mountHistory, Rested_options.mountHistoryAge )
 					end
 				end

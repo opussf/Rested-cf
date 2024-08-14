@@ -1,6 +1,7 @@
-RESTED_MSG_ADDONNAME = "Rested Reporter"
-RESTED_MSG_VERSION   = GetAddOnMetadata("Rested","Version")
-RESTED_MSG_AUTHOR    = GetAddOnMetadata("Rested","Author")
+RESTED_SLUG, Rested  = ...
+RESTED_MSG_ADDONNAME = C_AddOns.GetAddOnMetadata( RESTED_SLUG, "Title" )
+RESTED_MSG_VERSION   = C_AddOns.GetAddOnMetadata( RESTED_SLUG, "Version" )
+RESTED_MSG_AUTHOR    = C_AddOns.GetAddOnMetadata( RESTED_SLUG, "Author" )
 
 -- Colours
 COLOR_RED = "|cffff0000"
@@ -19,7 +20,6 @@ Rested_restedState = {}
 Rested_options = {}
 Rested_misc = {}
 
-Rested = {}
 Rested.commandList = {}  -- ["cmd"] = { ["func"] = reference, ["help"] = {"parameters", "help string"} }
 Rested.initFunctions = {}
 Rested.onUpdateFunctions = {}
