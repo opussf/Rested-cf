@@ -82,7 +82,7 @@ function Rested.MountReport( realm, name, charStruct )
 end
 function Rested.SetMountHistoryAge( inVal )
 	local previousVal = SecondsToTime( Rested_options.mountHistoryAge )
-	local newVal = Rested.DecodeTime( inVal, "d" )
+	local newVal = Rested.TextToSeconds( inVal, "d" )
 	Rested_options["mountHistoryAge"] = newVal
 	Rested.Print( string.format( "mountHistoryAge changed from %s to %s", previousVal, SecondsToTime( newVal ) ) )
 end

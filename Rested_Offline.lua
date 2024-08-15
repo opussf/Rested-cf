@@ -44,7 +44,7 @@ end
 
 -- WoWAPI functions that are not needed, and special ones that are
 -- Taken mostly from wowStubs.lua
-GetAddOnMetadata = function() end
+C_AddOns = {["GetAddOnMetadata"] = function() end}
 GetXPExhaustion = function() end
 UnitXPMax = function() end
 function SecondsToTime( secondsIn, noSeconds, notAbbreviated, maxCount )
@@ -210,10 +210,11 @@ end
 
 if( tocFile and FileExists( tocFile ) and
 		accountPath and dataFile and FileExists( dataFile ) ) then
+	sharedTable = {}
 	tocFileTable = TableFromTOC( tocFile )
 	package.path = srcFilePath..pathSeparator.."?.lua;" .. package.path
 	for _,f in pairs( tocFileTable ) do
-		require( f )
+		assert( loadfile( srcFilePath..pathSeparator..f..".lua" ) )( "Rested", sharedTable )
 	end
 	-- Call init Functions
 	Rested.showNumBars = 50
@@ -247,7 +248,7 @@ else
 	io.stderr:write( "Something is wrong.  Lets review:\n\n" )
 	io.stderr:write( "Usage: Rested_Online.lua <AccountPath> [report name list]\n" )
 	io.stderr:write( "[report name list] defaults to \"resting\"\n\n" )
-	io.stderr:write( "Version            : 3.9.3\n" )
+	io.stderr:write( "Version            : 3.10\n" )
 	io.stderr:write( "TOC file           : "..( tocFile or "False" ).."\n" )
 	io.stderr:write( "TOC file found     : "..( FileExists( tocFile ) and " True" or "False" ).."\n" )
 	io.stderr:write( "Account Path given : "..( accountPath and " True" or "False" ).."\n" )

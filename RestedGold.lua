@@ -35,7 +35,7 @@ function Rested.GoldReport( realm, name, charStruct )
 	end
 
 	local c = charStruct.gold or 0
-	Rested.goldSum = Rested.goldSum + c
+	Rested.goldSum = ( Rested.goldSum or 0 ) + c
 	Rested.goldMax = math.max( Rested.goldMax or 1, c )
 
 	g, s, c = Rested.GoldSilverCopperFromCopper( c )

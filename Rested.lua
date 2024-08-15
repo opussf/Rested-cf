@@ -29,6 +29,7 @@ Rested.reminders = {}
 Rested.genders={ "", "Male", "Female" }
 Rested.filterKeys = { "class", "race", "faction", "lvlNow", "gender" }
 Rested.rateStruct = {[0] = {(5/(32*3600)), "-"}, [1] = {(5/(8*3600)), "+"} }
+Rested.maxRestedByRace = { ["Pandaren"] = 300 } -- Pandaren have 300% rested pool
 -- report code that needs to show up 'early'
 Rested.reportName = ""
 Rested.dropDownMenuTable = {}
@@ -44,8 +45,8 @@ Rested.maxPlayerLevelTable = {  -- MAX_PLAYER_LEVEL_TABLE is an existing table. 
 	[7]=(time()>1534118400 and 120 or 110), -- Aug 13, 2018  -- validate this
 	[8]=(time()>1602547200 and 60 or 120), -- Oct 13, 2020
 	[9]=(time()>1669680000 and 70 or 60), -- Nov 29, 2022 -- validate this
-	[10]=(time()>1724310000 and 80 or 70), -- Aug 22, 2024
-	[11]=70
+	[10]=(time()>1724709600 and 80 or 70), -- Aug 22, 2024 @ 15:00 PDT
+	[11]=80
 }
 
 -- Load / init functions
@@ -164,8 +165,9 @@ function Rested.FormatRested( charStruct )
 	rs.restAdded = rs.restRate * rs.timeSince
 	rs.restedVal = rs.restAdded + ( charStruct.restedPC or 0 )
 	rs.restedOutStr = string.format( "%0.1f%%", rs.restedVal )
+	rs.maxRestedPC = Rested.maxRestedByRace[charStruct.race] or 150
 
-	if( rs.restedVal >= 150 ) then -- 150% of current is the 'max'
+	if( rs.restedVal >= (rs.maxRestedPC - 0.01) ) then -- 150% of current is the 'max'
 		rs.restedOutStr = COLOR_GREEN.."Fully Rested"..COLOR_END
 		rs.timeTillRested = nil
 	else
@@ -174,7 +176,7 @@ function Rested.FormatRested( charStruct )
 			if( rs.restedVal >= rs.lvlPCLeft ) then -- rested beyond the current level
 				rs.restedOutStr = COLOR_GREEN..rs.restedOutStr..COLOR_END
 			end
-			rs.timeTillRested = ( 150 - rs.restedVal ) / rs.restRate   -- restedVal is %, restedRate is %/s,
+			rs.timeTillRested = ( rs.maxRestedPC - rs.restedVal ) / rs.restRate   -- restedVal is %, restedRate is %/s,
 
 		end
 	end
@@ -234,26 +236,29 @@ function Rested.PruneByAge( struct, ageSeconds )
 		end
 	end
 end
-function Rested.DecodeTime( strIn, defaultUnit )
+Rested.timeMultipliers = { [" "] = 1, ["s"] = 1, ["m"] = 60, ["h"] = 3600, ["d"] = 86400, ["w"] = 604800 }
+function Rested.TextToSeconds( strIn, defaultUnit )
 	-- take a string (1d1h) and convert to seconds, return the seconds
-	local multipliers = {[" "]=1, ["s"]=1, ["m"]=60, ["h"]= 3600, ["d"]= 86400, ["w"]= 604800 }
-	local total, current = 0, 0
-	for c in strIn:gmatch(".") do
-		if( multipliers[c] ) then
-			current = current * multipliers[c]
-			total = total + current
-			current = 0
-			defaultUnit = nil  -- clear this if a unit is given
-		elseif( tonumber(c) ~= nil ) then
-			current = ( current * 10 ) + tonumber( c )
+	if( strIn and strlen( strIn ) > 0 ) then
+		local seconds, current, hasValue = 0, 0, false
+		for c in strIn:gmatch(".") do
+			if( Rested.timeMultipliers[c] ) then
+				current = current * Rested.timeMultipliers[c]
+				seconds = seconds + current
+				current = 0
+				defaultUnit = nil  -- clear this if a unit is given
+			elseif( tonumber(c) ~= nil ) then
+				hasValue = true
+				current = ( current * 10 ) + tonumber( c )
+			end
 		end
-	end
-	total = total + current
-	if( defaultUnit and multipliers[defaultUnit] ) then
-		total = total * multipliers[defaultUnit]
-	end
+		seconds = seconds + current
+		if( defaultUnit and Rested.timeMultipliers[defaultUnit] ) then
+			seconds = seconds * Rested.timeMultipliers[defaultUnit]
+		end
 
-	return total
+		return( hasValue and seconds or nil )
+	end
 end
 -- remove
 -- There is always the requirement to remove alts no longer being tracked
