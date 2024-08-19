@@ -29,6 +29,7 @@ Rested.reminders = {}
 Rested.genders={ "", "Male", "Female" }
 Rested.filterKeys = { "class", "race", "faction", "lvlNow", "gender" }
 Rested.rateStruct = {[0] = {(5/(32*3600)), "-"}, [1] = {(5/(8*3600)), "+"} }
+Rested.rateModByRace = { ["Pandaren"] = 2 }
 Rested.maxRestedByRace = { ["Pandaren"] = 300 } -- Pandaren have 300% rested pool
 -- report code that needs to show up 'early'
 Rested.reportName = ""
@@ -72,7 +73,7 @@ function Rested.Print( msg, showName )
 end
 function Rested.PrintHelp( command )
 	command = command and string.lower(command)
-	Rested.Print( RESTED_MSG_ADDONNAME.." ("..RESTED_MSG_VERSION..") by "..RESTED_MSG_AUTHOR )
+	Rested.Print( RESTED_MSG_ADDONNAME.." (v"..RESTED_MSG_VERSION..") by "..RESTED_MSG_AUTHOR )
 	local sortedKeys = {}
 	for text in pairs( Rested.commandList ) do
 		table.insert( sortedKeys, text )
@@ -99,7 +100,7 @@ function Rested.HelpReport( )
 	index = 1
 	if( #Rested.charList == 0 ) then
 		--Rested.Print( "Size of charList: "..#Rested.charList )
-		table.insert( Rested.charList, { 150, string.format( "%s:  Version %s", SLASH_RESTED1, RESTED_MSG_VERSION ) } )
+		table.insert( Rested.charList, { 150, string.format( "%s:  Version v%s", SLASH_RESTED1, RESTED_MSG_VERSION ) } )
 		local sortedKeys = {}
 		for text in pairs( Rested.commandList ) do
 			table.insert( sortedKeys, text )
@@ -162,6 +163,7 @@ function Rested.FormatRested( charStruct )
 	rs.timeSince = time() - ( charStruct.updated or charStruct.initAt or 0 )
 
 	rs.restRate, rs.code = unpack( Rested.rateStruct[(charStruct.isResting and 1 or 0)] )
+	rs.restRate = rs.restRate * ( Rested.rateModByRace[charStruct.race] or 1 )
 	rs.restAdded = rs.restRate * rs.timeSince
 	rs.restedVal = rs.restAdded + ( charStruct.restedPC or 0 )
 	rs.restedOutStr = string.format( "%0.1f%%", rs.restedVal )
@@ -454,5 +456,5 @@ function Rested.VARIABLES_LOADED( ... )
 	end
 
 	RestedFrame:UnregisterEvent( "VARIABLES_LOADED" )
-	print( RESTED_MSG_ADDONNAME.." ("..RESTED_MSG_VERSION..") Loaded" )
+	Rested.Print( RESTED_MSG_ADDONNAME.." (v"..RESTED_MSG_VERSION..") Loaded", false )
 end
