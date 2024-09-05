@@ -162,4 +162,46 @@
 			<OnMouseUp>Rested.UIOnDragStop()</OnMouseUp>
 		</Scripts>
 	</Frame>
+	<Frame name="RestedCSV" toplevel="false" parent="UIParent" enableMouse="true" movable="false">
+		<Size x="600" y="50"/>
+		<Anchors><Anchor point="CENTER"/></Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">
+					<Color r="0" g="0" b="0"/>
+				</Texture>
+				<FontString name="$parent_FormatStringHelp" inherits="GameFontWhite" justifyH="LEFT" text="Ctrl-C to copy CSV contents to clipboard.">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset><AbsDimension x="5"/></Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<EditBox name="$parent_EditBox" inherits="InputBoxTemplate" multiLine="false">
+				<Size x="590" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT"><Offset x="5"/></Anchor>
+				</Anchors>
+				<FontString name="CSVFont" inherits="ChatFontNormal"/>
+			</EditBox>
+
+			<Button name="$parent_Close" inherits="UIPanelButtonTemplate" text="Close">
+				<Size><AbsDimension x="120" y="24"/></Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<!--<Offset><AbsDimension x="-5" y="5"/></Offset>-->
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>RestedCSV:Hide();</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>self:Hide();</OnLoad>
+		</Scripts>
+	</Frame>
 </Ui>

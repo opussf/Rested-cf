@@ -71,16 +71,23 @@ function Rested.Print( msg, showName )
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
+function Rested.SortedPairs( tableIn )  -- @TODO: Move this to Rested.lua and clean up some functions there.
+	local keys = {}
+	for k in pairs( tableIn ) do table.insert( keys, k ) end
+	table.sort( keys )
+	local lcv = 0
+	local iter = function()
+		lcv = lcv + 1
+		if keys[lcv] == nil then return nil
+		else return keys[lcv], tableIn[keys[lcv]]
+		end
+	end
+	return iter
+end
 function Rested.PrintHelp( command )
 	command = command and string.lower(command)
 	Rested.Print( RESTED_MSG_ADDONNAME.." (v"..RESTED_MSG_VERSION..") by "..RESTED_MSG_AUTHOR )
-	local sortedKeys = {}
-	for text in pairs( Rested.commandList ) do
-		table.insert( sortedKeys, text )
-	end
-	table.sort( sortedKeys, function( a, b ) return string.lower(a) < string.lower(b) end )
-	for _, cmd in ipairs( sortedKeys ) do
-		info = Rested.commandList[cmd]
+	for cmd, info in Rested.SortedPairs( Rested.commandList ) do
 		if command and command == cmd then
 			Rested.Print( string.format( "  %s %s -> %s",
 				cmd, info.help[1], info.help[2] ), false )
@@ -101,14 +108,8 @@ function Rested.HelpReport( )
 	if( #Rested.charList == 0 ) then
 		--Rested.Print( "Size of charList: "..#Rested.charList )
 		table.insert( Rested.charList, { 150, string.format( "%s:  Version v%s", SLASH_RESTED1, RESTED_MSG_VERSION ) } )
-		local sortedKeys = {}
-		for text in pairs( Rested.commandList ) do
-			table.insert( sortedKeys, text )
-		end
-		table.sort( sortedKeys, function( a, b ) return string.lower(a) < string.lower(b) end )
-		for _, cmd in ipairs( sortedKeys ) do
+		for cmd, info in Rested.SortedPairs( Rested.commandList ) do
 			index = index + 1
-			info = Rested.commandList[cmd]
 			table.insert( Rested.charList, { 150-(index * 0.01), string.format( "%s %s -> %s",
 					cmd, info.help[1], info.help[2] ) } )
 		end

@@ -21,12 +21,14 @@ function Rested.ScanTradeSkill()
 	for _,recipeID in pairs( recipeTable ) do
 		cdSeconds, hasCD, num3, num4 = C_TradeSkillUI.GetRecipeCooldown( recipeID )
 		-- 1=secondsLeft / nil, 2=False/true, 3 = 0, 4= 0
-		recipeInfoTable = C_TradeSkillUI.GetRecipeInfo( recipeID )
-		categoryInfoTable = C_TradeSkillUI.GetCategoryInfo( recipeInfoTable.categoryID, categoryInfoTable )
+		if cdSeconds then
+			recipeInfoTable = C_TradeSkillUI.GetRecipeInfo( recipeID )
+			categoryInfoTable = C_TradeSkillUI.GetCategoryInfo( recipeInfoTable.categoryID, categoryInfoTable )
 
-		rLink = C_TradeSkillUI.GetRecipeItemLink( recipeID )
-		Rested.me["tradeCD"] = Rested.me["tradeCD"] or {}
-
+			rLink = C_TradeSkillUI.GetRecipeItemLink( recipeID )
+			Rested.me["tradeCD"] = Rested.me["tradeCD"] or {}
+			Rested.me.tradeCD[recipeID] = {["cdTS"] = math.floor(cdSeconds + time()), ["category"] = recipeInfoTable.name }
+		end
 	end
 end
 function Rested.PruneTradeSkill()

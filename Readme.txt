@@ -31,6 +31,30 @@ This is a way to not see a toon for a while (say to make sure they are rested, o
 
 
 Change Log:
+3.11    - Added: CSV export
+        - Fixed: Recording Cooldowns for Professions
+3.10.1  - Fixed: Pandarian also gain rested at 2x the rate.
+3.10    - Added: Structure to allow Pandarian to track 300% rested pool.
+        - Structure: Use the table given by the client.
+        - Changed: Consolidate TextToTime functions
+        - Changed: Cleaner way to get guild rep info.
+        - Changed: Mount report Aura changes
+        - Changed: Tests use Test Realm with space in name
+3.9     - Changed: Guild Standing report changes
+3.8     - Added: Vault Report
+        - Added: Zone Change also updates iLvl
+        - Changed: Rested_Export now sorts values
+3.7     - Added: "nonag <search> [ignore duration]" command to allow toons to not show up in the nag report
+3.6     - NagTimeOut option to autohide nag window
+3.5     - Some UI work
+        - Removing some prof CDs
+3.4     - Sorted Help list
+        - Help report
+        - Remove Azerite tracking
+3.3.0   - Auctions tracking
+3.2.0   - Offline report
+3.1.0   - Gold Report
+        - Many Changes
 3.0.0   - Total rewrite.  Register events through commands, make reports and data gathering more modular.
         - Added a new data store for non-option values.
         - Found and removed tainted execution cause.
