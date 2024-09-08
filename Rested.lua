@@ -153,7 +153,7 @@ function Rested.FormatName( realm, name, useColor )
 	useColor = useColor or ( useColor == nil )
 	useColor = useColor and ( realm == Rested.realm and name == Rested.name )
 	return string.format( "%s%s:%s%s",
-			( useColor and COLOR_GREEN or ""), realm, name, ( useColor and COLOR_END or "" ) )
+			( useColor and COLOR_GREEN or ""), name, realm, ( useColor and COLOR_END or "" ) )
 end
 Rested.formatRestedStruct = {}  -- this is here for memory optimization only.  do not rely on this.
 function Rested.FormatRested( charStruct )
