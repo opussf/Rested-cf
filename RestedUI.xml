@@ -55,7 +55,7 @@
 			<Button name="$parent_Close" inherits="UIPanelCloseButton" parent="RestedUIFrame">
 				<Anchors>
 					<Anchor point="TOPRIGHT">
-						<Offset x="4" y="6"/>
+						<Offset x="0" y="0"/>
 					</Anchor>
 				</Anchors>
 			</Button>

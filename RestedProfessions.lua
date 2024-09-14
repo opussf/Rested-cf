@@ -112,31 +112,56 @@ Rested.ReminderCallback( Rested.ReminderCooldowns )
 -----------
 -- Concentration
 -----------
-function Rested.GetConcentration()
-	local professionInfo = C_TradeSkillUI.GetChildProfessionInfo()
-	local concentrationCurrencyID = C_TradeSkillUI.GetConcentrationCurrencyID( professionInfo.professionID )
-	if concentrationCurrencyID and concentrationCurrencyID>0 then
-		local currencyInfo = C_CurrencyInfo.GetCurrencyInfo( concentrationCurrencyID )
-		--if currencyInfo.quantity < currencyInfo.maxQuantity then
-		Rested.me["concentration"] = Rested.me["concentration"] or {}
-		profName = professionInfo.professionName
-		for long, short in pairs( Rested.ProfNameMap ) do
-			profName = string.gsub( profName, long, short )
-		end
-		Rested.me.concentration[profName] = Rested.me.concentration[profName] or {}
-		Rested.me.concentration[profName].ts = time()
-		Rested.me.concentration[profName].value = currencyInfo.quantity
-		Rested.me.concentration[profName].max = currencyInfo.maxQuantity
-		-- else
-		-- 	Rested.me.concentration[professionInfo.professionName] = nil
-		-- end
-	end
-end
-Rested.ConcentrationRateGain = 1/360  -- 1 per 6 min
 Rested.ProfNameMap = {
 	["Khaz Algar"] = "Khaz",
 	["Dragon Isles"] = "Dragon"
 }
+function Rested.GetConcentration()
+	-- Rested.Print( "GetConcentration()" )
+	local professionInfos = C_TradeSkillUI.GetChildProfessionInfos()
+	for i, professionInfo in pairs( professionInfos ) do
+		local concentrationCurrencyID = C_TradeSkillUI.GetConcentrationCurrencyID( professionInfo.professionID )
+		if concentrationCurrencyID and concentrationCurrencyID>0 then
+			local currencyInfo = C_CurrencyInfo.GetCurrencyInfo( concentrationCurrencyID )
+			profName = professionInfo.professionName
+			for long, short in pairs( Rested.ProfNameMap ) do
+				profName = string.gsub( profName, long, short )
+			end
+			if currencyInfo.quantity < currencyInfo.maxQuantity then
+				Rested.me["concentration"] = Rested.me["concentration"] or {}
+				Rested.me.concentration[profName] = Rested.me.concentration[profName] or {}
+				Rested.me.concentration[profName].value = currencyInfo.quantity
+				Rested.me.concentration[profName].max = currencyInfo.maxQuantity
+				Rested.me.concentration[profName].ts = time()
+			elseif Rested.me.concentration then
+				Rested.me.concentration[profName] = nil
+			end
+		end
+	end
+	local knownProfs = {}
+	for num, index in pairs( {GetProfessions()} ) do -- index is the profession number, num is 1,2
+		name = GetProfessionInfo( index )
+		if name then table.insert( knownProfs, name ) end-- add Name
+	end
+	local count = 0
+	if knownProfs[1] and knownProfs[1] ~= nil and Rested.me.concentration then
+		for profName, _ in pairs( Rested.me.concentration ) do
+			found = false
+			for _, searchTerm in pairs( knownProfs ) do
+				if searchTerm and string.find( profName, searchTerm ) then found = true end
+			end
+			if not found then
+				Rested.me.concentration[profName] = nil
+			else
+				count = count + 1
+			end
+		end
+	end
+	if count == 0 then
+		Rested.me.concentration = nil
+	end
+end
+Rested.ConcentrationRateGain = 1/360  -- 1 per 6 min
 function Rested.ProfConcentrationReport( realm, name, charStruct )
 	count = 0
 	if( charStruct.concentration ) then
@@ -156,7 +181,7 @@ function Rested.ProfConcentrationReport( realm, name, charStruct )
 	return count
 end
 Rested.EventCallback( "TRADE_SKILL_LIST_UPDATE", Rested.GetConcentration )
-Rested.EventCallback( "VIGNETTES_UPDATED", Rested.GetConcentration )
+Rested.EventCallback( "TRADE_SKILL_NAME_UPDATE", Rested.GetConcentration )
 
 Rested.dropDownMenuTable["Prof Conc"] = "conc"
 Rested.commandList["conc"] = { ["help"] = {"","Profession concentration"}, ["func"] = function()
@@ -164,3 +189,30 @@ Rested.commandList["conc"] = { ["help"] = {"","Profession concentration"}, ["fun
 		Rested.UIShowReport( Rested.ProfConcentrationReport )
 	end
 }
+
+function Rested.ProfConcentrationReminders( realm, name, charStruct )
+	returnStruct = {}
+	if charStruct.concentration then
+		for profName, profStruct in pairs( charStruct.concentration ) do
+			currentQuantity = math.min( profStruct.value + ((time() - profStruct.ts) * Rested.ConcentrationRateGain), profStruct.max )
+			fullPercent = currentQuantity / profStruct.max
+			if currentQuantity == profStruct.max then
+				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has full "..profName.." concentration." }
+			elseif fullPercent > 0.75 then
+				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has more than 75% "..profName.." concentration." }
+			elseif fullPercent > 0.5 then
+				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has more than half "..profName.." concentration." }
+			end
+			for targetQuantity = profStruct.value, profStruct.max do
+				if targetQuantity % 100 == 0 then
+					secondsAtTarget = profStruct.ts + ((targetQuantity-profStruct.value) / Rested.ConcentrationRateGain)
+					returnStruct[secondsAtTarget] = returnStruct[secondsAtTarget] or {}
+					table.insert( returnStruct[secondsAtTarget], Rested.FormatName( realm, name ).." has "..targetQuantity.." "..profName.." concentration." )
+				end
+			end
+		end
+	end
+	return returnStruct
+end
+
+Rested.ReminderCallback( Rested.ProfConcentrationReminders )
