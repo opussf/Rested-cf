@@ -206,8 +206,10 @@ function Rested.ProfConcentrationReminders( realm, name, charStruct )
 			for targetQuantity = profStruct.value, profStruct.max do
 				if targetQuantity % 100 == 0 then
 					secondsAtTarget = profStruct.ts + ((targetQuantity-profStruct.value) / Rested.ConcentrationRateGain)
-					returnStruct[secondsAtTarget] = returnStruct[secondsAtTarget] or {}
-					table.insert( returnStruct[secondsAtTarget], Rested.FormatName( realm, name ).." has "..targetQuantity.." "..profName.." concentration." )
+					if secondsAtTarget > time() then
+						returnStruct[secondsAtTarget] = returnStruct[secondsAtTarget] or {}
+						table.insert( returnStruct[secondsAtTarget], Rested.FormatName( realm, name ).." has "..targetQuantity.." "..profName.." concentration." )
+					end
 				end
 			end
 		end
