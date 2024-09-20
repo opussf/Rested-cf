@@ -2,6 +2,7 @@
 Rested.showNumBars = 6
 Rested.displayList = {}
 Rested.charList = {}
+Rested.reportReverseSort = {} -- ["reportName"] = nil|true (for reverse)
 -- Rested.displayList = { { displayValue (% of 100), "display text" }, {value, 'text'}, ... }
 
 --  UI Handling code
@@ -49,7 +50,11 @@ function Rested.UIUpdateFrame()
 		RestedUIFrame_TitleText:SetText( "Rested - "..Rested.reportName.." - "..count )
 		RestedScrollFrame_VSlider:SetMinMaxValues( 0, max( 0, count-Rested.showNumBars ) )
 		if count > 0 then
-			table.sort( Rested.charList, function( a, b ) return( a[1] > b[1] ); end )
+			if Rested.reportReverseSort[Rested.reportName] then
+				table.sort( Rested.charList, function( a, b ) return a[1] < b[1] end )  -- sort in ascending order
+			else
+				table.sort( Rested.charList, function( a, b ) return a[1] > b[1] end )  -- sort in descending order
+			end
 			offset = math.floor( RestedScrollFrame_VSlider:GetValue() )
 			for i = 1, Rested.showNumBars do
 				idx = i + offset

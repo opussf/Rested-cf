@@ -196,12 +196,13 @@ function Rested.ProfConcentrationReminders( realm, name, charStruct )
 		for profName, profStruct in pairs( charStruct.concentration ) do
 			currentQuantity = math.min( profStruct.value + ((time() - profStruct.ts) * Rested.ConcentrationRateGain), profStruct.max )
 			fullPercent = currentQuantity / profStruct.max
-			if currentQuantity == profStruct.max then
-				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has full "..profName.." concentration." }
+			returnStruct[time()+15] = returnStruct[time()+15] or {}
+			if currentQuantity >= profStruct.max then
+				table.insert( returnStruct[time()+15], Rested.FormatName( realm, name ).." has full "..profName.." concentration." )
 			elseif fullPercent > 0.75 then
-				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has more than 75% "..profName.." concentration." }
+				table.insert( returnStruct[time()+15], Rested.FormatName( realm, name ).." has more than 75% "..profName.." concentration." )
 			elseif fullPercent > 0.5 then
-				returnStruct[time()+15] = { Rested.FormatName( realm, name ).." has more than half "..profName.." concentration." }
+				table.insert( returnStruct[time()+15], Rested.FormatName( realm, name ).." has more than half "..profName.." concentration." )
 			end
 			for targetQuantity = profStruct.value, profStruct.max do
 				if targetQuantity % 100 == 0 then
