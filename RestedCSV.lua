@@ -1,15 +1,37 @@
 -- RestedCSV.lua
 
+Rested.CSVFields = {
+	{"Faction", "faction"},
+	{"Race", "race"},
+	{"Class", "class"},
+	{"Gender", "gender"},
+	{"Level", "lvlNow"},
+	{"iLvl", "iLvl"},
+	{"Copper","gold"},
+	{"Prof1","prof1"},
+	{"Prof2","prof2"},
+	{"Prof3","prof3"},
+	{"Prof4","prof4"},
+	{"Prof5","prof5"},
+}
 function Rested.MakeCSV()
-	strOut = "Realm,Name,Faction,Race,Class,Gender,Level,iLvl\n"
+	local report = {}
+	local row = {"Realm","Name"}
+	for _, fieldStruct in ipairs( Rested.CSVFields ) do
+		table.insert( row, fieldStruct[1] )
+	end
+	table.insert( report, table.concat( row, "," ) )
+
 	for realm, chars in Rested.SortedPairs( Rested_restedState ) do
 		for name, charStruct in Rested.SortedPairs( chars ) do
-			strOut = strOut .. string.format( "%s,%s,%s,%s,%s,%s,%i,%i\n",
-				realm, name, charStruct.faction, charStruct.race, charStruct.class,
-				charStruct.gender, charStruct.lvlNow, (charStruct.iLvl or "") )
+			row = {realm, name}
+			for _, fieldStruct in ipairs( Rested.CSVFields ) do
+				table.insert( row, (charStruct[fieldStruct[2]] or "") )
+			end
+			table.insert( report, table.concat( row, "," ) )
 		end
 	end
-	Rested_csv = strOut
+	Rested_csv = table.concat( report, "\n" ).."\n"
 	RestedCSV_EditBox:SetText( Rested_csv )
 	RestedCSV_EditBox:HighlightText()
 	RestedCSV:Show()

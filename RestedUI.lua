@@ -73,6 +73,11 @@ function Rested.UIUpdateFrame()
 		end
 	end
 end
+function Rested.UIMouseWheel( delta )
+	RestedScrollFrame_VSlider:SetValue(
+		RestedScrollFrame_VSlider:GetValue() - delta
+	)
+end
 function Rested.UIOnUpdate( arg1 )
 	-- only gets called when the report frame is shown
 	if( Rested.UIlastUpdate == nil ) or ( Rested.UIlastUpdate <= time() ) then

@@ -160,6 +160,7 @@
 			<OnUpdate>Rested.UIOnUpdate( elaspsed )</OnUpdate>
 			<OnMouseDown>Rested.UIOnDragStart()</OnMouseDown>
 			<OnMouseUp>Rested.UIOnDragStop()</OnMouseUp>
+			<OnMouseWheel>Rested.UIMouseWheel( delta )</OnMouseWheel>
 		</Scripts>
 	</Frame>
 	<Frame name="RestedCSV" toplevel="false" parent="UIParent" enableMouse="true" movable="false">
