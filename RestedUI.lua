@@ -1,5 +1,5 @@
 -- RestedUI.lua
-Rested.showNumBars = 6
+Rested_options.showNumBars = 6
 Rested.displayList = {}
 Rested.charList = {}
 Rested.reportReverseSort = {} -- ["reportName"] = nil|true (for reverse)
@@ -10,7 +10,10 @@ Rested.reportReverseSort = {} -- ["reportName"] = nil|true (for reverse)
 function Rested.UIBuildBars()
 	if( not Rested.bars ) then
 		Rested.bars = {}
-		for idx = 1, Rested.showNumBars do
+	end
+	local count = #Rested.bars
+	if ( Rested_options.showNumBars > count ) then
+		for idx = count+1, Rested_options.showNumBars do
 			Rested.bars[idx] = {}
 			local item = CreateFrame("StatusBar", "Rested_ItemBar"..idx, RestedScrollContents, "Rested_RestedBarTemplate")
 			Rested.bars[idx].bar = item
@@ -26,7 +29,12 @@ function Rested.UIBuildBars()
 			Rested.bars[idx].text = text
 			text:SetPoint("TOPLEFT", item, "TOPLEFT", 5, 0)
 		end
-		--print( "Bars built" )
+	elseif ( Rested_options.showNumBars < count ) then
+		for idx = Rested_options.showNumBars+1, count do
+			Rested.bars[idx].bar:SetValue(0)
+			Rested.bars[idx].text:SetText("")
+			Rested.bars[idx].bar:Hide()
+		end
 	end
 end
 Rested.InitCallback( Rested.UIBuildBars )
@@ -37,8 +45,26 @@ end
 function Rested.UIOnDragStop()
 	RestedUIFrame:StopMovingOrSizing()
 end
+function Rested.UIResize( start )
+	if start then
+		RestedUIFrame:StartSizing( "BOTTOM", true )  -- always start from mouse = true
+		Rested.isSizing = true
+	else
+		Rested.isSizing = nil
+		RestedUIFrame:StopMovingOrSizing()
+		--local frameWidth, frameHeight = RestedUIFrame:GetSize()
+		--print(frameWidth..", "..frameHeight )
+		--Rested_options.showNumBars = math.floor( ( ( frameHeight - 53 ) / 12 ) + 0.5 )  -- 53 is a 'constant'
+		local barCountSize = Rested_options.showNumBars * 12
+		RestedUIFrame:SetHeight( barCountSize + 53 )
+		RestedScrollFrame:SetHeight( barCountSize + 10 )
+		RestedScrollFrame_VSlider:SetHeight( barCountSize + 10 )
+		Rested.UIBuildBars()
+		--Rested.UIResetFrame()
+	end
+end
 function Rested.UIResetFrame()
-	for i = 1, Rested.showNumBars do
+	for i = 1, Rested_options.showNumBars do
 		Rested.bars[i].bar:SetValue(0)
 		Rested.bars[i].text:SetText("")
 		Rested.bars[i].bar:Hide()
@@ -48,7 +74,7 @@ function Rested.UIUpdateFrame()
 	if( RestedUIFrame:IsVisible() and Rested.reportFunction ) then  -- a non-set reportFunction will break this.
 		count = Rested.ForAllChars( Rested.reportFunction, ( Rested.reportName == "Ignored" ) )
 		RestedUIFrame_TitleText:SetText( "Rested - "..Rested.reportName.." - "..count )
-		RestedScrollFrame_VSlider:SetMinMaxValues( 0, max( 0, count-Rested.showNumBars ) )
+		RestedScrollFrame_VSlider:SetMinMaxValues( 0, max( 0, count-Rested_options.showNumBars ) )
 		if count > 0 then
 			if Rested.reportReverseSort[Rested.reportName] then
 				table.sort( Rested.charList, function( a, b ) return a[1] < b[1] end )  -- sort in ascending order
@@ -56,7 +82,7 @@ function Rested.UIUpdateFrame()
 				table.sort( Rested.charList, function( a, b ) return a[1] > b[1] end )  -- sort in descending order
 			end
 			offset = math.floor( RestedScrollFrame_VSlider:GetValue() )
-			for i = 1, Rested.showNumBars do
+			for i = 1, Rested_options.showNumBars do
 				idx = i + offset
 				if idx <= count then
 					Rested.bars[i].bar:SetValue( max( 0, Rested.charList[idx][1] ) ) -- sorted on value
@@ -67,7 +93,7 @@ function Rested.UIUpdateFrame()
 				end
 			end
 		elseif( Rested.bars and count == 0 ) then
-			for i = 1, Rested.showNumBars do
+			for i = 1, Rested_options.showNumBars do
 				Rested.bars[i].bar:Hide()
 			end
 		end
@@ -79,6 +105,16 @@ function Rested.UIMouseWheel( delta )
 	)
 end
 function Rested.UIOnUpdate( arg1 )
+	if Rested.isSizing then
+		local frameWidth, frameHeight = RestedUIFrame:GetSize()
+		--print( "Resize: "..frameWidth..", "..frameHeight )
+		Rested_options.showNumBars = math.floor( ( ( frameHeight - 53 ) / 12 ) + 0.5 )  -- 53 is a 'constant'
+		local barCountSize = Rested_options.showNumBars * 12
+		RestedScrollFrame:SetHeight( barCountSize + 10 )
+		RestedScrollFrame_VSlider:SetHeight( barCountSize + 10 )
+		Rested.UIBuildBars()
+		Rested.UIlastUpdate = 0
+	end
 	-- only gets called when the report frame is shown
 	if( Rested.UIlastUpdate == nil ) or ( Rested.UIlastUpdate <= time() ) then
 		Rested.UIlastUpdate = time() + 1 -- only update once a second
@@ -105,6 +141,9 @@ end
 function Rested.ResetUIPosition()
 	RestedUIFrame:ClearAllPoints()
 	RestedUIFrame:SetPoint("LEFT", "$parent", "LEFT")
+	Rested_options.showNumBars = 6
+	RestedUIFrame:SetHeight( 125 )
+	Rested.UIResize()
 end
 Rested.commandList["uireset"] = { ["help"] = {"","Reset the location of the UI frame"}, ["func"] = Rested.ResetUIPosition }
 
