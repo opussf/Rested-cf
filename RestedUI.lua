@@ -40,13 +40,15 @@ end
 Rested.InitCallback( Rested.UIBuildBars )
 
 function Rested.UIOnDragStart()
-	RestedUIFrame:StartMoving()
+	if not Rested_options.UIIsLocked then
+		RestedUIFrame:StartMoving()
+	end
 end
 function Rested.UIOnDragStop()
 	RestedUIFrame:StopMovingOrSizing()
 end
 function Rested.UIResize( start )
-	if start then
+	if start and not Rested_options.UIIsLocked then
 		RestedUIFrame:StartSizing( "BOTTOM", true )  -- always start from mouse = true
 		Rested.isSizing = true
 	else

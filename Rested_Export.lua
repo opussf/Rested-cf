@@ -57,6 +57,12 @@ function GetKeyValues( key, value, keyPre, t )
 	end
 	return t
 end
+function EscapeStr( strIn )
+	-- This escapes a str
+	strIn = string.gsub( strIn, "\\", "\\\\" )
+	strIn = string.gsub( strIn, "\"", "\\\"" )
+	return strIn
+end
 function MakeCharTable( realm, name, c )
 	charStruct = {}
 	charStruct.rn = realm
@@ -126,9 +132,9 @@ function ExportJSON()
 				charOut = {}
 				for k,v in sorted_pairs(charStruct) do
 					if type(v) == "number" then
-						table.insert(charOut, string.format('"%s":%s', k, v))
+						table.insert(charOut, string.format('"%s":%s', EscapeStr(k), v))
 					else
-						table.insert(charOut, string.format('"%s":"%s"', k, v))
+						table.insert(charOut, string.format('"%s":"%s"', EscapeStr(k), EscapeStr(v)))
 					end
 				end
 				charLine = '\t\t{'..table.concat( charOut, ", " )..'}'
@@ -142,7 +148,7 @@ function ExportJSON()
 
 	outTable = {}
 	for _, st in sorted_pairs( guildList ) do
-		guildLine = string.format('\t\t{"gn":"%s", "rn":"%s"}', st.guildName, st.realm )
+		guildLine = string.format('\t\t{"gn":"%s", "rn":"%s"}', EscapeStr(st.guildName), EscapeStr(st.realm) )
 		table.insert( outTable, guildLine )
 	end
 	strOut = strOut .. table.concat( outTable, ",\n" )
