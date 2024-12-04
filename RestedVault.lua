@@ -24,8 +24,10 @@ function Rested.Rewards_Update( ... )
 		Rested.me.weeklyActivity = countActivities
 		Rested.me.weeklyResetAt = Rested.GetWeeklyQuestResetTime()
 		-- print( "Weekly reset happens at: "..date( "%c", Rested.me.weeklyResetAt ) )
-		Rested.Command( "vault" )
 		Rested.autoCloseAfter = Rested_options.nagTimeOut and time()+Rested_options.nagTimeOut or nil
+	end
+	if Rested.me.weeklyRewards then
+		Rested.Command( "vault" )
 	end
 end
 

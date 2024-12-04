@@ -1,28 +1,18 @@
 -- RestedTalents.lua
+RESTED_SLUG, Rested = ...
 
-local addonName, Addon = ...;
+function Rested.TalentsGetStr()
+	local activeConfigID = C_ClassTalents.GetActiveConfigID()
+	if activeConfigID then
+		local importString = C_Traits.GenerateImportString(activeConfigID)
 
-function Addon:GetExportText()
-	local talentsFrame = Addon.TalentsFrame;
-	if not talentsFrame then
-		local text = "Error: TalentsFrame is not exists."
-		Addon:Print(text);
-		error(text);
+		Rested.me.talentName = C_Traits.GetConfigInfo(activeConfigID).name
+		Rested.me.talentHash = importString
 	end
-
-	local exportStream = ExportUtil.MakeExportDataStream();
-	local configID = talentsFrame:GetConfigID();
-	local currentSpecID = PlayerUtil.GetCurrentSpecID();
-
-	local treeInfo = talentsFrame:GetTreeInfo();
-	local treeHash = treeInfo and C_Traits.GetTreeHash(treeInfo.ID);
-	if treeHash then
-		local serializationVersion = C_Traits.GetLoadoutSerializationVersion();
-		talentsFrame:WriteLoadoutHeader(exportStream, serializationVersion, currentSpecID, treeHash);
-		talentsFrame:WriteLoadoutContent(exportStream, configID, treeInfo.ID);
-
-		return exportStream:GetExportString();
-	end
-
-	return nil;
 end
+
+Rested.EventCallback( "SPELLS_CHANGED", Rested.TalentsGetStr )
+Rested.EventCallback( "TRAIT_CONFIG_UPDATED", Rested.TalentsGetStr )
+
+table.insert( Rested.CSVFields, {"TalentName", "talentName"} )
+table.insert( Rested.CSVFields, {"TalentString", "talentHash"} )

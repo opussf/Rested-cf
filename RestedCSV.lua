@@ -31,13 +31,14 @@ function Rested.MakeCSV()
 			table.insert( report, table.concat( row, "," ) )
 		end
 	end
-	Rested_csv = table.concat( report, "\n" ).."\n"
-	RestedCSV_EditBox:SetText( Rested_csv )
+	Rested_csv.text = table.concat( report, "\n" ).."\n"
+	RestedCSV_EditBox:SetText( Rested_csv.text )
 	RestedCSV_EditBox:HighlightText()
 	RestedCSV:Show()
 	C_Timer.After(15, function() RestedCSV:Hide(); end)
 	Rested.Print("CSV report created. Ctrl-C to copy CSV content to the clipboard.")
 end
 
-Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() Rested_csv=nil; end )
+Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() Rested_csv={}; end )
+Rested.EventCallback( "PLAYER_LOGOUT", function() Rested_csv.fields = Rested.CSVFields; end )
 Rested.commandList["csv"] = {["help"] = {"","Make CSV export"}, ["func"] = Rested.MakeCSV }
