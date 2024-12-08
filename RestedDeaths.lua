@@ -1,5 +1,4 @@
 -- RestedDeaths.lua
-
 function Rested.SaveDeaths()
 	-- update death count
 	Rested_restedState[Rested.realm][Rested.name].deaths = tonumber( GetStatistic( 60 ) or 0 )  -- 60 is number of deaths

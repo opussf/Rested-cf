@@ -1,5 +1,4 @@
 -- RestedGold.lua
-
 function Rested.SaveGold()
 	Rested.me.gold = GetMoney() or 0
 	Rested.WBBGold = C_Bank.FetchDepositedMoney( Enum.BankType.Account )

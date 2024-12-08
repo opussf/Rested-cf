@@ -1,5 +1,4 @@
 -- RestedCSV.lua
-
 Rested.CSVFields = {
 	{"Faction", "faction"},
 	{"Race", "race"},
