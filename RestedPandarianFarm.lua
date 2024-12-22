@@ -22,8 +22,7 @@ function Rested.FarmIsCrop( name )
 	return true
 end
 
-function Rested.FarmGetPlotSize( iteration )
-	iteration = iteration or 1
+function Rested.FarmGetPlotSize( retryCount )
 	local plotSizeQuests = { [2] = 30535, [4] = 30257, [8] = 30516, [12] = 30524, [16] = 30529 }
 	Rested.me.farm = Rested.me.farm or {}
 	for plotSize, qnum in Rested.SortedPairs( plotSizeQuests ) do
@@ -36,8 +35,8 @@ function Rested.FarmGetPlotSize( iteration )
 			end
 		else
 			-- print( plotSize..":"..qnum.." failed to get title: Using After" )
-			if iteration <= 10 then
-				C_Timer.After( 1, Rested.FarmGetPlotSize( iteration + 1 ) )
+			if not retryCount or retryCount <= 10 then
+				C_Timer.After( 1, function() Rested.FarmGetPlotSize( (retryCount and retryCount + 1 or 1) ) end )
 			end
 			return
 		end

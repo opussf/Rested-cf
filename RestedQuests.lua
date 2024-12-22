@@ -10,19 +10,16 @@ function Rested.QuestCommand( strIn, retryCount )
 				-- Rested.Print( "Checking quest: "..qnum )
 				title = C_QuestLog.GetTitleForQuestID( qnum )
 				completed = C_QuestLog.IsQuestFlaggedCompleted( qnum )
-				if title then
-					Rested.me.quests = Rested.me.quests or {}
-					Rested.me.quests[qnum] = {
-						["title"] = title,
+				Rested.me.quests = Rested.me.quests or {}
+				Rested.me.quests[qnum] = {
+						["title"] = title or "Unknown Name",
 						["completed"] = completed,
 						["addedTS"] = time() + qcount,
 						["completedTS"] = ( completed and time() or nil ),
 					}
-					qcount = qcount + 1
-
-					Rested.Print( qnum..":"..title..":"..(completed and "DONE" or "Available") )
-				elseif not retryCount or retryCount <= 5 then
-					Rested.Print( "Retrying questID: "..qnum )
+				qcount = qcount + 1
+				if not title and (not retryCount or retryCount <= 5) then
+					-- Rested.Print( "Retrying questID: "..qnum )
 					C_Timer.After( 1, function() Rested.QuestCommand( qnum, (retryCount and retryCount + 1 or 1) ) end )
 				end
 			end
