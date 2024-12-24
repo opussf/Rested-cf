@@ -7,9 +7,18 @@ Rested.reportReverseSort = {} -- ["reportName"] = nil|true (for reverse)
 
 --  UI Handling code
 ---------------------------------
+function Rested.UISetShowNumBars()
+	local frameWidth, frameHeight = RestedUIFrame:GetSize()
+	--print( "Resize: "..frameWidth..", "..frameHeight )
+	Rested_options.showNumBars = math.floor( ( ( frameHeight - 53 ) / 12 ) + 0.5 )  -- 53 is a 'constant'
+	return Rested_options.showNumBars
+end
 function Rested.UIBuildBars()
 	if( not Rested.bars ) then
 		Rested.bars = {}
+	end
+	if not Rested_options.showNumBars then
+		Rested.UISetShowNumBars()
 	end
 	local count = #Rested.bars
 	if ( Rested_options.showNumBars > count ) then
@@ -74,6 +83,9 @@ function Rested.UIResetFrame()
 end
 function Rested.UIUpdateFrame()
 	if( RestedUIFrame:IsVisible() and Rested.reportFunction ) then  -- a non-set reportFunction will break this.
+		if not Rested_options.showNumBars then
+			Rested_options.showNumBars = Rested.UISetShowNumBars()
+		end
 		count = Rested.ForAllChars( Rested.reportFunction, ( Rested.reportName == "Ignored" ) )
 		RestedUIFrame_TitleText:SetText( "Rested - "..Rested.reportName.." - "..count )
 		RestedScrollFrame_VSlider:SetMinMaxValues( 0, max( 0, count-Rested_options.showNumBars ) )
@@ -108,9 +120,7 @@ function Rested.UIMouseWheel( delta )
 end
 function Rested.UIOnUpdate( arg1 )
 	if Rested.isSizing then
-		local frameWidth, frameHeight = RestedUIFrame:GetSize()
-		--print( "Resize: "..frameWidth..", "..frameHeight )
-		Rested_options.showNumBars = math.floor( ( ( frameHeight - 53 ) / 12 ) + 0.5 )  -- 53 is a 'constant'
+		Rested.UISetShowNumBars()
 		local barCountSize = Rested_options.showNumBars * 12
 		RestedScrollFrame:SetHeight( barCountSize + 10 )
 		RestedScrollFrame_VSlider:SetHeight( barCountSize + 10 )
