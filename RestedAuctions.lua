@@ -48,7 +48,8 @@ Rested.dropDownMenuTable["Auctions"] = "auctions"
 Rested.commandList["auctions"] = {["help"] = {"","Show auction counts"}, ["func"] = function()
 		Rested.reportName = "Auctions"
 		Rested.UIShowReport( Rested.AuctionsReport )
-	end
+	end,
+	["desc"] = {"List of auctions."},
 }
 function Rested.AuctionsReport( realm, name, charStruct )
 	local AuctionAge = 48 * 3600 -- 48 hours

@@ -220,7 +220,8 @@ Rested.dropDownMenuTable["All"] = "all"
 Rested.commandList["all"] = {["help"] = {"","Show all characters"}, ["func"] = function()
 		Rested.reportName = "All"
 		Rested.UIShowReport( Rested.AllCharacters )
-	end
+	end,
+	["desc"] = {"Show all characters sorted by level."},
 }
 function Rested.AllCharacters( realm, name, charStruct )
 	-- 80 (15.5%): Realm:Name

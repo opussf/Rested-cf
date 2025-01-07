@@ -31,6 +31,22 @@ This is a way to not see a toon for a while (say to make sure they are rested, o
 
 
 Change Log:
+3.19    - Added: Darkmoon Faire report (quests, last time visiting the island)
+        - Added: Garrison Cache report added back in.
+        - Updated: Profession Concentration report to show full Conc for 2 days
+3.18.4  - Fixed: UI Resize issue
+3.18.3  - Fixed: Pandarian Farm plot size checking
+3.18.2  - Fixed: Pandarian Farm plot size checking
+3.18.1  - Fixed: Guild Rep and Rank
+3.18    - Added: Mythic ranking and key tracking
+3.17.1  - Fixed: Pandarian Farm report
+3.17    - Added: Pandarian Farm report (plots and last time harvested)
+        - Added: Quest tracker
+3.16    - Added: Window lock support
+3.15    - Added: Window resize support
+3.14    - Added: CSV report
+        - Added: Mouse wheel support for scrolling
+3.13.1  - Updated: 110005
 3.13    - Added: Track the quests that reward the Cache Rewards
         - Added: Option to allow report to be sorted in reverse (ascending instead of default descending)
 3.12.2  - Fixed: Concentration reminders

@@ -61,7 +61,8 @@ Rested.dropDownMenuTable["Prof CD"] = "cooldowns"
 Rested.commandList["cooldowns"] = { ["help"] = {"","Profession Cooldowns"}, ["func"] = function()
 		Rested.reportName = "Cooldowns"
 		Rested.UIShowReport( Rested.Cooldowns )
-	end
+	end,
+	["desc"] = {""},
 }
 
 function Rested.Cooldowns( realm, name, charStruct )
@@ -127,15 +128,17 @@ function Rested.GetConcentration()
 			for long, short in pairs( Rested.ProfNameMap ) do
 				profName = string.gsub( profName, long, short )
 			end
-			if currencyInfo.quantity < currencyInfo.maxQuantity then
-				Rested.me["concentration"] = Rested.me["concentration"] or {}
-				Rested.me.concentration[profName] = Rested.me.concentration[profName] or {}
-				Rested.me.concentration[profName].value = currencyInfo.quantity
-				Rested.me.concentration[profName].max = currencyInfo.maxQuantity
+			-- Rested.Print( profName..": "..currencyInfo.quantity.." of "..currencyInfo.maxQuantity )
+			Rested.me.concentration = Rested.me.concentration or {}
+			Rested.me.concentration[profName] = Rested.me.concentration[profName] or {}
+			Rested.me.concentration[profName].max = currencyInfo.maxQuantity
+
+			if Rested.me.concentration[profName].value ~= currencyInfo.quantity then
 				Rested.me.concentration[profName].ts = time()
-			elseif Rested.me.concentration then
-				Rested.me.concentration[profName] = nil
+			else
+				Rested.me.concentration[profName].ts = Rested.me.concentration[profName].ts or time()
 			end
+			Rested.me.concentration[profName].value = currencyInfo.quantity
 		end
 	end
 	local knownProfs = {}
@@ -163,19 +166,30 @@ function Rested.GetConcentration()
 end
 Rested.ConcentrationRateGain = 1/360  -- 1 per 6 min
 function Rested.ProfConcentrationReport( realm, name, charStruct )
-	count = 0
+	local count = 0
 	if( charStruct.concentration ) then
 		for profName, struct in pairs( charStruct.concentration ) do
-			needToMax = struct.max - struct.value
-			timeToMax = struct.ts + ( needToMax / Rested.ConcentrationRateGain )
-			timeSince = time() - struct.ts
-			current = math.min( struct.max, math.floor( struct.value + (timeSince * Rested.ConcentrationRateGain) ) )
-			table.insert( Rested.charList, { ( current / struct.max ) * 150,
-					string.format( "%4i: %s%s :: %s",
-						current,
-						(struct.max > current and SecondsToTime( (struct.max - current) / Rested.ConcentrationRateGain ).." " or ""),
-						profName, Rested.FormatName( realm, name ) ) } )
-			count = count + 1
+			if struct.value < struct.max then
+				local needToMax = struct.max - struct.value
+				local timeToMax = struct.ts + ( needToMax / Rested.ConcentrationRateGain )
+				local timeSince = time() - struct.ts
+				local current = math.min( struct.max, math.floor( struct.value + (timeSince * Rested.ConcentrationRateGain) ) )
+				table.insert( Rested.charList, { ( current / struct.max ) * 150,
+						string.format( "%4i: %s%s :: %s",
+							current,
+							(struct.max > current and SecondsToTime( (struct.max - current) / Rested.ConcentrationRateGain ).." " or ""),
+							profName, Rested.FormatName( realm, name ) ) } )
+				count = count + 1
+			else
+				local timeSince = time() - struct.ts
+				local timeOut = 86400 * 2
+				if timeSince < timeOut then
+					table.insert( Rested.charList, { ( timeSince / timeOut ) * 150,
+							string.format( "%4i: %s :: %s",
+								struct.max, profName, Rested.FormatName( realm, name ) ) } )
+					count = count + 1
+				end
+			end
 		end
 	end
 	return count
