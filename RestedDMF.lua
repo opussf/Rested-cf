@@ -54,6 +54,13 @@ function Rested.DMFReport( realm, name, charStruct )
 		table.insert( Rested.charList, { 150 - ((charStruct.DMF.lastVisit - Rested.DMFStart) * (150/(Rested.DMFEnd - Rested.DMFStart))),
 				string.format( "%i :: %s :: %s", questCount, SecondsToTime( time() - charStruct.DMF.lastVisit ), rn ) } )
 		return 1
+	else
+		local nameCode, lcv = 0, 0
+		for lcv = 1, min(string.len(nameCode), 3) do
+			nameCode = nameCode * 100 + string.byte( name, lcv)
+		end
+		table.insert( Rested.charList, { 99999999 - nameCode, string.format( "No record of visit :: %s", rn ) } )
+		return 1
 	end
 end
 
