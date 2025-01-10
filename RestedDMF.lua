@@ -42,6 +42,7 @@ Rested.EventCallback( "ZONE_CHANGED_NEW_AREA", Rested.DMFIsOnDMFIsland )
 Rested.InitCallback( Rested.DMFThisMonth )
 
 function Rested.DMFReport( realm, name, charStruct )
+	if not Rested.DMFStart then Rested.DMFThisMonth() end
 	local rn = Rested.FormatName( realm, name )
 	if charStruct.DMF then
 		local questCount = 0
@@ -50,7 +51,6 @@ function Rested.DMFReport( realm, name, charStruct )
 				questCount = questCount + 1
 			end
 		end
-
 		table.insert( Rested.charList, { 150 - ((charStruct.DMF.lastVisit - Rested.DMFStart) * (150/(Rested.DMFEnd - Rested.DMFStart))),
 				string.format( "%i :: %s :: %s", questCount, SecondsToTime( time() - charStruct.DMF.lastVisit ), rn ) } )
 		return 1
