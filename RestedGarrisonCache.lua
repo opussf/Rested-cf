@@ -34,7 +34,7 @@ function Rested.GcacheReport( realm, name, charStruct )
 		local rn = Rested.FormatName( realm, name )
 		local timeSince = time() - charStruct.garrisonCache
 
-		local resourcesInCache = math.floor(math.min( ( timeSince / 3600 ) * Rested.cacheRate, Rested.cacheMax ))
+		local resourcesInCache = math.min( ( timeSince / 3600 ) * Rested.cacheRate, Rested.cacheMax )
 
 		local fullAt = ( (Rested.cacheMax / Rested.cacheRate) * 3600 ) + charStruct.garrisonCache
 
@@ -45,7 +45,7 @@ function Rested.GcacheReport( realm, name, charStruct )
 				table.insert( Rested.charList,
 						{ (resourcesInCache / Rested.cacheMax) * 150,
 							string.format( "%i%s : %s :: %s",
-								(resourcesInCache >= Rested.cacheMin and resourcesInCache or 0),
+								(resourcesInCache >= Rested.cacheMin and math.floor(resourcesInCache) or 0),
 								(charStruct.garrisonQuantity and " : "..charStruct.garrisonQuantity or ""),
 								SecondsToTime( fullAt - time() ),
 								rn) } )
