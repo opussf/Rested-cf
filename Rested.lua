@@ -143,10 +143,20 @@ function Rested.Command( msg )
 		cmdFunc.func( param )
 		return( cmd )
 	else
-		Rested.commandList[ "resting" ].func()
-		return( "resting" )
+		Rested.commandList[ Rested_options.defaultReport or "resting" ].func()
+		return( Rested_options.defaultReport or "resting" )
 	end
 end
+
+Rested.commandList["default"] = { ["help"] = {"<reportCommand>","Set the default report to show."}, ["func"] = function( param )
+		if Rested.commandList[ param ] then
+			Rested_options.defaultReport = param
+		end
+	end,
+	["desc"] = {"Sets the default report."}
+}
+
+
 function Rested.FormatName( realm, name, useColor )
 	-- only use Color formatting if current player
 	-- unless useColor is passed as 'false'

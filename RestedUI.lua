@@ -140,7 +140,7 @@ end
 
 function Rested.UIShowReport( reportFunction )
 	-- use reportFunction to drive the report
-	--print( "Rested.UIShowReport" )
+	-- print( "Rested.UIShowReport( "..Rested.reportName..")" )
 	Rested.reportFunction = reportFunction
 	RestedUIFrame:Show()
 	Rested.UIResetFrame()
