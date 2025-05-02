@@ -11,7 +11,14 @@ function Rested.StoreMythicInfo()
 			local itemId = C_Container.GetContainerItemID(b, s)
 			if (itemId == 180653) then
 				found = true
-				local _, _, mythicPlusMapID = strsplit( ":", C_Container.GetContainerItemLink(b, s) )
+				local mythicInfo = {strsplit( ":", C_Container.GetContainerItemLink(b, s) )}
+				local mythicPlusMapID
+				for i,v in ipairs( mythicInfo) do
+					if( v == "180653" ) then
+						mythicPlusMapID = mythicInfo[i+1]
+						break
+					end
+				end
 				Rested.me.mythic_keyMapName = C_ChallengeMode.GetMapUIInfo( mythicPlusMapID )
 				Rested.me.mythic_keyMapLevel = C_MythicPlus.GetOwnedKeystoneLevel()
 			end
