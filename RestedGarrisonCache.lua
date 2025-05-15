@@ -5,12 +5,13 @@ function Rested.GatherGarrisonResources( ... )
 	-- Rested.Print( "GatherGarrisonResources: "..type..":"..link..":"..amount )
 	if type == "currency" and strfind( link, "Garrison Resources" ) then
 		Rested.me.garrisonCache = time()
-
 	end
 end
 function Rested.GarrisonResources( ... )
 	local curInfo = C_CurrencyInfo.GetCurrencyInfo( 824 ) -- 824 = garrison resources
-	Rested.me.garrisonQuantity = curInfo.quantity
+	if Rested.me then
+		Rested.me.garrisonQuantity = curInfo.quantity
+	end
 end
 
 Rested.EventCallback( "SHOW_LOOT_TOAST", Rested.GatherGarrisonResources )
