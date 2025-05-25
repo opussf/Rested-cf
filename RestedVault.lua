@@ -1,14 +1,14 @@
 -- RestedVault.lua
+Rested.vaultActivities = { { 3, "Raid" }, { 1, "Dungeon" }, { 6, "World" } }
 
 function Rested.Rewards_Update( ... )
 	-- print( "WEEKLY_REWARDS_UPDATE:" )
 	Rested.me.weeklyRewards = ( C_WeeklyRewards.HasAvailableRewards() or nil )
 	-- print( "Has Available Rewards: "..(Rested.me.weeklyRewards and "True" or "False"))
-	activities = { "Dungeon", "PvP", "Raid" }
 	countActivities, Rested.maxActivities, count = {}, 0, 0
-	for k,name in ipairs( activities ) do
-		-- print( k, name )
-		activityInfo = C_WeeklyRewards.GetActivities( tonumber(k) )
+	for _, struct in ipairs( Rested.vaultActivities ) do
+		local type, name = unpack( struct )
+		activityInfo = C_WeeklyRewards.GetActivities( tonumber( type ) )
 		for level, info in ipairs( activityInfo ) do
 			Rested.maxActivities = Rested.maxActivities + 1
 			if info.progress >= info.threshold then
@@ -104,11 +104,16 @@ function Rested.VaultReport( realm, name, charStruct )
 		table.insert( Rested.charList, { 150, "Claim: "..rn } )
 		return 1
 	elseif charStruct.weeklyActivity then
-
+		local rewardCount = {}
 		table.insert( Rested.charList, {
-				((charStruct.weeklyActivity.Dungeon or 0) + (charStruct.weeklyActivity.PvP or 0) + (charStruct.weeklyActivity.Raid or 0)) * (150 / Rested.maxActivities),
+				((charStruct.weeklyActivity[Rested.vaultActivities[1][2]] or 0)
+					+ (charStruct.weeklyActivity[Rested.vaultActivities[2][2]] or 0)
+					+ (charStruct.weeklyActivity[Rested.vaultActivities[3][2]] or 0))
+					* (150 / Rested.maxActivities),
 				string.format( "%i/%i/%i: %s",
-						(charStruct.weeklyActivity.Raid or 0), (charStruct.weeklyActivity.Dungeon or 0), (charStruct.weeklyActivity.PvP or 0), rn
+						(charStruct.weeklyActivity[Rested.vaultActivities[1][2]] or 0),
+						(charStruct.weeklyActivity[Rested.vaultActivities[2][2]] or 0),
+						(charStruct.weeklyActivity[Rested.vaultActivities[3][2]] or 0), rn
 				)}
 		)
 		return 1
