@@ -33,8 +33,18 @@ function Rested.SetIgnore( param )
 		Rested.Print( "SetIgnore: "..param )
 		for realm in pairs( Rested_restedState ) do
 			for name, struct in pairs( Rested_restedState[realm] ) do
-				if( ( string.find( string.upper( realm ), param ) ) or
-						( string.find( string.upper( name ), param ) ) ) then
+				local match = false
+				if( string.find( string.upper( realm ), param ) or
+						string.find( string.upper( name ), param ) ) then
+					match = true
+				else
+					for _, key in pairs( Rested.filterKeys ) do
+						if( struct[key] and string.find( string.upper( struct[key] ), param ) ) then
+							match = true
+						end
+					end
+				end
+				if match then
 					struct.ignore = time() + Rested_options.ignoreTime
 					Rested.Print( string.format( "Ignoring %s:%s for %s", realm, name, SecondsToTime( Rested_options.ignoreTime ) ) )
 				end

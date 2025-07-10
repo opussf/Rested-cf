@@ -1,8 +1,8 @@
 ## Title: Rested Reporter
-## Interface: 110100
-## Notes: Rested Tracker for alts (3.22)
+## Interface: 110107
+## Notes: Rested Tracker for alts (3.23)
 ## Author: opussf
-## Version: 3.22
+## Version: 3.23
 ## Description: Track stats for your alts.
 ## SavedVariables: Rested_restedState Rested_misc Rested_options Rested_csv
 Rested.lua
@@ -31,3 +31,5 @@ RestedTalents.lua
 RestedMythic.lua
 RestedDMF.lua
 RestedGarrisonCache.lua
+
+RestedRaid.lua
