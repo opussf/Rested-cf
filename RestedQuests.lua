@@ -48,21 +48,28 @@ function Rested.QuestReport( realm, name, charStruct )
 end
 function Rested.QuestUpdate()
 	if Rested.me.quests then
-		questCount = 0
+		local questCount = 0
+		local questsChanged = false
 		for qnum, qinfo in pairs( Rested.me.quests ) do
 			questCount = questCount + 1
 			if not qinfo.completed and C_QuestLog.IsQuestFlaggedCompleted( qnum ) then
 				Rested.me.quests[qnum].completed = true
 				Rested.me.quests[qnum].completedTS = time()
+				questsChanged = true
 			elseif not qinfo.onquest and C_QuestLog.IsOnQuest( qnum ) then
 				Rested.me.quests[qnum].onquest = true
 				Rested.me.quests[qnum].addedTS = time()
+				questsChanged = true
 			elseif qinfo.completed and qinfo.completedTS < time() - 160 then  -- completd more than 5 minutes ago.
 				Rested.me.quests[qnum] = nil
 			end
 		end
 		if questCount == 0 then
 			Rested.me.quests = nil
+		end
+		if questsChanged then
+			Rested.QuestCommand()
+			RestedScrollFrame_VSlider:SetValue(0)
 		end
 	end
 end
@@ -102,7 +109,9 @@ Rested.commandList["storylines"] = { ["help"] = {"[storyline,...]","Track quests
 /rested quests 85037,84906,84905,84904,84903,84902,84900,84899,84898,84897,
 /rested quests 86820
 
-/rested storylines 5690,5717,5696,5734,5733,5780
+/rested storylines 5690,5717,5696,5734,5733,5780,5693,5744,5705
+/rested storylines 5683,5735,5699,5953,5703,5715,5695,5970,5770
+
 
 
 C_QuestLog.IsOnQuest(questID)
