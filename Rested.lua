@@ -47,7 +47,7 @@ Rested.maxPlayerLevelTable = {  -- MAX_PLAYER_LEVEL_TABLE is an existing table. 
 	[8]=(time()>1602547200 and 60 or 120), -- Oct 13, 2020
 	[9]=(time()>1669680000 and 70 or 60), -- Nov 29, 2022 -- validate this
 	[10]=(time()>1724709600 and 80 or 70), -- War Within, Aug 22, 2024 @ 15:00 PDT
-	[11]=(time()>1772089200 and 90 or 80), -- Midnight, Feb 26, 2026 @ 0000 PST
+	[11]=(time()>1772438402 and 90 or 80), -- Midnight, Mar 2, 2026 @ 0000 PST
 }
 
 -- Load / init functions
@@ -156,7 +156,10 @@ Rested.commandList["default"] = { ["help"] = {"<reportCommand>","Set the default
 	["desc"] = {"Sets the default report."}
 }
 
-
+function Rested.FormatNumber( numIn )
+	-- reverse it, add a comma every 3 digits, reverse again, remove any leading comma
+	return tostring(numIn):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,","")
+end
 function Rested.FormatName( realm, name, useColor )
 	-- only use Color formatting if current player
 	-- unless useColor is passed as 'false'

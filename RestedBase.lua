@@ -155,6 +155,7 @@ function Rested.RestedReminderValues( realm, name, struct )
 			end
 		end
 	end
+	return returnStruct
 end
 Rested.ReminderCallback( Rested.RestedReminderValues )
 
@@ -499,3 +500,28 @@ function Rested.Birthdays( realm, name, charStruct )
 	table.insert( Rested.charList, {toGo / (86400 * 365) * 150, Rested.strOut} )
 	return 1
 end
+
+Rested.birthdayReminders = {
+
+}
+function Rested.BirthdayReminderValues( realm, name, struct )
+	local returnStruct = {}
+	local now = time()
+	local today = date( "*t", now )
+	local bday = date( "*t", struct.initAt )
+
+	if today.month == bday.month and today.day == bday.day and today.year ~= bday.year then
+		returnStruct[now+15] = returnStruct[now+15] or {}
+		table.insert( returnStruct[now+15], string.format( "Today is %s-%s's birthday", name, realm ) )
+	end
+	bday.year = today.year
+	bday = time( bday )
+	if (bday > now ) and ((bday - now) < 604800) then
+		returnStruct[now+30] = returnStruct[now+30] or {}
+		table.insert( returnStruct[now+30], string.format( "%s-%s has a birthday in the next week.", name, realm ) )
+	end
+
+	return returnStruct
+
+end
+Rested.ReminderCallback( Rested.BirthdayReminderValues )

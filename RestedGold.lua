@@ -27,7 +27,7 @@ function Rested.GoldReport( realm, name, charStruct )
 		Rested.reportName = "Gold"
 		g, s, c = Rested.GoldSilverCopperFromCopper( Rested.WBBGold or 0 )
 		Rested.strOut = string.format( "%sg %ss %sc :: Warband Bank",
-				g, s, c )
+				Rested.FormatNumber(g), s, c )
 		table.insert( Rested.charList, { 151, Rested.strOut } )
 		Rested.goldSum = Rested.WBBGold
 		count = count + 1
@@ -40,10 +40,10 @@ function Rested.GoldReport( realm, name, charStruct )
 	g, s, c = Rested.GoldSilverCopperFromCopper( c )
 	--print( rn.."::"..g.."::".. ( ( charStruct.gold and charStruct.gold or 0 ) / Rested.goldMax ) * 150 )
 
-	Rested.reportName = string.format( "Gold (%sG)", math.floor( Rested.goldSum / 10000 ) )
+	Rested.reportName = string.format( "Gold (%sG)", Rested.FormatNumber( math.floor( Rested.goldSum / 10000 ) ) )
 
 	Rested.strOut = string.format( "%sg %ss %sc :: %s",
-			g, s, c, rn )
+			Rested.FormatNumber(g), s, c, rn )
 	table.insert( Rested.charList, { ( ( charStruct.gold and charStruct.gold or 0 ) / Rested.goldMax ) * 150, Rested.strOut } )
 	return count
 end
