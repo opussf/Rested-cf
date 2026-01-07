@@ -31,6 +31,18 @@ This is a way to not see a toon for a while (say to make sure they are rested, o
 
 
 Change Log:
+3.26    - Added: IsNext. Create a list of characters to visit next.
+3.25.2  - Updated: 11.2.7 version
+3.25.1  - Updated: 11.2.5 version
+3.25    - Added: Age and Birthday reports.
+3.24    - Added: Added some details for quests.  Can also add a storyline: `/rested storylines storylineid`
+3.23    - Added: Can now ignore characters based on filter keys.
+3.22    - Updated: Vault types updated.
+3.21.2  - Fixed: Garrison Cache
+3.21.1  - Fixed: Mythic report is a bit more robust.
+3.21    - Added: Can set the default report.  `/rested default reportName`
+3.20.1  - Fixed: Garrison Cache report
+3.20    - Added: Garrison Cache changes
 3.19    - Added: Darkmoon Faire report (quests, last time visiting the island)
         - Added: Garrison Cache report added back in.
         - Updated: Profession Concentration report to show full Conc for 2 days

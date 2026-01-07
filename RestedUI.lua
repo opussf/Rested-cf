@@ -158,6 +158,7 @@ function Rested.ResetUIPosition()
 	Rested.UIResize()
 end
 Rested.commandList["uireset"] = { ["help"] = {"","Reset the location of the UI frame"}, ["func"] = Rested.ResetUIPosition }
+Rested.commandList["close"] = { ["help"] = {"","Close the UI"}, ["func"] = function() RestedUIFrame:Hide() end }
 
 -- DropDown code
 function Rested.UIDropDownOnClick( self, cmd )
