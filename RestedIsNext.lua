@@ -56,7 +56,18 @@ function Rested.SetNextCharacters( param )
 			end
 			for r, _ in pairs( Rested_restedState ) do
 				for n, cs in pairs( Rested_restedState[r] ) do
-					if string.find( string.lower(n), searchName ) then
+					local match = false
+					if( string.find( string.lower(r), searchName ) or
+							string.find( string.lower(n), searchName ) ) then
+						match = true
+					else
+						for _, key in pairs( Rested.filterKeys ) do
+							if( cs[key] and string.find( string.lower( cs[key] ), searchName ) ) then
+								match = true
+							end
+						end
+					end
+					if match then
 						if toRemove then
 							cs.isNextIndex = nil
 						else
@@ -68,10 +79,9 @@ function Rested.SetNextCharacters( param )
 			end
 		end
 		_, _, Rested.nextCharacterIndex = Rested.IsNext_GetMinMaxNext()
-	else
-		Rested.reportName = "Play Next"
-		Rested.UIShowReport( Rested.NextCharsReport, true )
 	end
+	Rested.reportName = "Play Next"
+	Rested.UIShowReport( Rested.NextCharsReport, true )
 end
 
 Rested.InitCallback( Rested.GetCharacterIndex )

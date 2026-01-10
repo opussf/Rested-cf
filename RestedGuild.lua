@@ -50,6 +50,11 @@ function Rested.GuildStandingReport( realm, name, charStruct )
 					Rested.strOut
 				}
 		)
+	else
+		lineCount = 1
+		Rested.strOut = string.format( "No guild :: %s",
+			rn )
+		table.insert( Rested.charList, { 0, Rested.strOut } )
 	end
 	return lineCount
 end
