@@ -1,12 +1,25 @@
 -- RestedIsNext.lua
 RESTED_SLUG, Rested  = ...
 
+function Rested.RegisterIsNext()
+	SLASH_ISNEXT1 = "/isnext"
+	SlashCmdList["ISNEXT"] = Rested.SetNextCharacters
+end
 function Rested.GetCharacterIndex()
-	Rested_restedState[Rested.realm][Rested.name].characterIndex = GetCVar("lastCharacterIndex")
+	local characterIndex = GetCVar("lastCharacterIndex")
+
+	for r, _ in pairs( Rested_restedState ) do
+		for n, cs in pairs( Rested_restedState[r] ) do
+			if cs.characterIndex == characterIndex then
+				cs.characterIndex = nil
+			end
+		end
+	end
+
+	Rested_restedState[Rested.realm][Rested.name].characterIndex = characterIndex
 	Rested_restedState[Rested.realm][Rested.name].isNextIndex = nil
 	Rested.ShiftIsNextCharacterIndex()
 	_, _, Rested.nextCharacterIndex = Rested.IsNext_GetMinMaxNext()
-
 end
 function Rested.SetNextCharacterIndex()
 	if Rested.nextCharacterIndex then
@@ -85,6 +98,7 @@ function Rested.SetNextCharacters( param )
 end
 
 Rested.InitCallback( Rested.GetCharacterIndex )
+Rested.InitCallback( Rested.RegisterIsNext)
 Rested.EventCallback( "PLAYER_LOGOUT", Rested.SetNextCharacterIndex )
 
 Rested.dropDownMenuTable["IsNext"] = "isnext"
@@ -92,6 +106,7 @@ Rested.commandList["isnext"] = {
 	["help"] = {"space seperated character list", "Add the next characters to visit."},
 	["func"] = Rested.SetNextCharacters,
 }
+table.insert( Rested.CSVFields, {"CharacterIndex", "characterIndex"} )
 
 function Rested.NextCharsReport( realm, name, charStruct )
 	local rn = Rested.FormatName( realm, name )

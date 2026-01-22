@@ -20,7 +20,7 @@ function Rested.GetCurrentMount( ... )
 		end
 		for an=1,40 do
 			auraData = C_UnitAuras.GetAuraDataByIndex( "player", an )
-			if( auraData ) then
+			if( auraData and not issecretvalue( auraData.spellID ) and not issecretvalue( auraData.name ) ) then
 				-- print( "Aura "..an..": "..auraData.name.." ("..(auraData.spellId or "nil")..")" )
 				if( Rested.mountSpells[auraData.spellId] and Rested.mountSpells[auraData.spellId] == auraData.name ) then
 					-- print( auraData.name.." is a mount." )
