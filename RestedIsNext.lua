@@ -11,7 +11,7 @@ function Rested.GetCharacterIndex()
 	for r, _ in pairs( Rested_restedState ) do
 		for n, cs in pairs( Rested_restedState[r] ) do
 			if cs.characterIndex == characterIndex then
-				cs.characterIndex = nil
+				cs.characterIndex = nil  -- Always clear current, then set.
 			end
 		end
 	end
@@ -97,8 +97,8 @@ function Rested.SetNextCharacters( param )
 	Rested.UIShowReport( Rested.NextCharsReport, true )
 end
 
-Rested.InitCallback( Rested.GetCharacterIndex )
 Rested.InitCallback( Rested.RegisterIsNext)
+Rested.EventCallback("PLAYER_ENTERING_WORLD", function() C_Timer.After(5, Rested.GetCharacterIndex) end)
 Rested.EventCallback( "PLAYER_LOGOUT", Rested.SetNextCharacterIndex )
 
 Rested.dropDownMenuTable["IsNext"] = "isnext"

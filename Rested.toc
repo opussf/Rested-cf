@@ -1,8 +1,8 @@
 ## Title: Rested Reporter
-## Interface: 120000
-## Notes: Rested Tracker for alts (3.27)
+## Interface: 120001
+## Notes: Rested Tracker for alts (3.27.1)
 ## Author: opussf
-## Version: 3.27
+## Version: 3.27.1
 ## Description: Track stats for your alts.
 ## SavedVariables: Rested_restedState Rested_misc Rested_options Rested_csv
 Rested.lua
