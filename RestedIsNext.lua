@@ -6,6 +6,10 @@ function Rested.RegisterIsNext()
 	SlashCmdList["ISNEXT"] = Rested.SetNextCharacters
 end
 function Rested.GetCharacterIndex()
+	if Rested_misc.prevChar and Rested_misc.prevIndex and Rested_misc.prevChar == Rested.realm.."-"..Rested.name then
+		SetCVar("lastCharacterIndex", Rested_misc.prevIndex)  -- Reset the index.
+	end
+
 	local characterIndex = GetCVar("lastCharacterIndex")
 
 	for r, _ in pairs( Rested_restedState ) do
@@ -22,6 +26,8 @@ function Rested.GetCharacterIndex()
 	_, _, Rested.nextCharacterIndex = Rested.IsNext_GetMinMaxNext()
 end
 function Rested.SetNextCharacterIndex()
+	Rested_misc.prevChar = Rested.realm.."-"..Rested.name
+	Rested_misc.prevIndex = Rested_restedState[Rested.realm][Rested.name].characterIndex
 	if Rested.nextCharacterIndex then
 		SetCVar("lastCharacterIndex", Rested.nextCharacterIndex)
 	end
@@ -97,9 +103,9 @@ function Rested.SetNextCharacters( param )
 	Rested.UIShowReport( Rested.NextCharsReport, true )
 end
 
-Rested.InitCallback( Rested.RegisterIsNext)
+Rested.InitCallback(Rested.RegisterIsNext)
 Rested.EventCallback("PLAYER_ENTERING_WORLD", function() C_Timer.After(5, Rested.GetCharacterIndex) end)
-Rested.EventCallback( "PLAYER_LOGOUT", Rested.SetNextCharacterIndex )
+Rested.EventCallback("PLAYER_LOGOUT", Rested.SetNextCharacterIndex)
 
 Rested.dropDownMenuTable["IsNext"] = "isnext"
 Rested.commandList["isnext"] = {
