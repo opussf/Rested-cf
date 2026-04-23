@@ -3,6 +3,7 @@ Rested_options.showNumBars = 6
 Rested.displayList = {}
 Rested.charList = {}
 Rested.reportReverseSort = {} -- ["reportName"] = nil|true (for reverse)
+Rested.reportShowIgnored = {} -- ["reportname"] = nil|true (to show ignored toons)
 -- Rested.displayList = { { displayValue (% of 100), "display text" }, {value, 'text'}, ... }
 
 --  UI Handling code
@@ -86,7 +87,7 @@ function Rested.UIUpdateFrame()
 		if not Rested_options.showNumBars then
 			Rested_options.showNumBars = Rested.UISetShowNumBars()
 		end
-		count = Rested.ForAllChars( Rested.reportFunction, ( Rested.reportName == "Ignored" ) )
+		count = Rested.ForAllChars( Rested.reportFunction, Rested.reportShowIgnored[Rested.reportName] )
 		RestedUIFrame_TitleText:SetText( "Rested - "..Rested.reportName.." - "..count )
 		RestedScrollFrame_VSlider:SetMinMaxValues( 0, max( 0, count-Rested_options.showNumBars ) )
 		if count > 0 then

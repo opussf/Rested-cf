@@ -75,6 +75,7 @@ function Rested.IgnoredCharacters( realm, name, charStruct )
 	end
 	return 0
 end
+Rested.reportShowIgnored["Ignored"] = true
 Rested.commandList["ignore"] = { ["func"] = Rested.SetIgnore, ["help"] = {"<search> [ignore Duration]", "Ignore matched chars, or show ignored." } }
 Rested.EventCallback( "PLAYER_ENTERING_WORLD", function() Rested.ForAllChars( Rested.UpdateIgnore, true ); end )
 Rested.dropDownMenuTable["Ignore"] = "ignore"

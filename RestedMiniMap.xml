@@ -1,0 +1,52 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Button name="RestedMinimapButton" parent="Minimap" frameStrata="MEDIUM" frameLevel="8" enableMouse="true" movable="false" clampedToScreen="false">
+		<Size>
+			<AbsDimension x="32" y="32"/>
+		</Size>
+		<!-- <NormalTexture file="Interface\Icons\Ability_Rogue_Restingpose"/> -->
+		<!-- <NormalTexture file="Interface\AddOns\MyAddon\imgs\myicon"/> -->
+
+		<!-- Hover glow -->
+		<HighlightTexture file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight" alphaMode="ADD"/>
+
+		<!-- Click feedback -->
+		<PushedTexture file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight" alphaMode="ADD"/>
+
+		<!-- Circular border overlay -->
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="RestedMinimapButtonIcon" file="Interface\Addons\Rested\imgs\icon">
+					<Size>
+						<AbsDimension x="18" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="RestedMinimapButtonBorder" file="Interface\Minimap\MiniMap-TrackingBorder">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="9" y="-10"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad>Rested.MinimapButton_OnLoad(self)</OnLoad>
+			<OnEnter>Rested.MinimapButton_OnEnter(self)</OnEnter>
+			<OnLeave>Rested.MinimapButton_OnLeave(self)</OnLeave>
+			<OnClick>Rested.MinimapButton_OnClick(self, button)</OnClick>
+			<OnDragStart>Rested.MinimapButton_OnDragStart(self, button)</OnDragStart>
+			<OnDragStop>Rested.MinimapButton_OnDragStop(self)</OnDragStop>
+		</Scripts>
+	</Button>
+</Ui>

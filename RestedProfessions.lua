@@ -34,7 +34,7 @@ function Rested.PruneTradeSkill()
 	if Rested.me.tradeCD then
 		local count = 0
 		for k, v in pairs( Rested.me.tradeCD ) do
-			if( v.cdTS < time() ) then
+			if( v.cdTS < time() - 86400 ) then  -- cooldown ended yesterday
 				Rested.me.tradeCD[k] = nil
 			else
 				count = count + 1

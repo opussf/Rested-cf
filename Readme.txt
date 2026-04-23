@@ -6,16 +6,64 @@ How to use:
 Install the addon for any alt you wish to track. Log into that alt.
 Type '/rested' to see a list of alts and their rested status.
 
+[duration] is any number with a time unit.
+5w = 5 weeks
+1h52m = 1 hour and 52 minutes.
+
+Time units are:
+s = seconds
+m = minutes
+h = hours
+d = days
+w = weeks
+
+
 Commands:
-/rested                   -> Rested Report
-/rested rm name[-realm]   -> Remove a character, optionally on specific realm
-/rested ignore name|realm -> Ignore a named character, or characters on a realm.  Will ignore what ever matches.
-                          -> Use . to ignore all.
-/rested help              -> Show all available commands / reports
+age                         -> Show character ages
+all                         -> Show all characters
+auctions                    -> Show auction counts
+bday                        -> Show time until character's upcoming birthday
+close                       -> Close the UI
+conc                        -> Profession concentration
+cooldowns                   -> Profession Cooldowns
+csv                         -> Make CSV export
+deaths                      -> Show number of deaths
+default <reportCommand>     -> Set the default report to show for /rested
+dmf                         -> Show DMF report
+farm                        -> Show Farm report
+full                        -> Show fully rested characters
+gcache                      -> Show garrison cache report.
+gold                        -> Show gold
+guild                       -> Show guild standing
+help <command>              -> Show help. Specific info for command if given.
+ignore <search> [duration]  -> Ignore matched chars, or show ignored.
+ilvl                        -> Show iLvl report
+isnext [search] [search]    -> Queue character to visit next.
+level                       -> Show % of level
+max                         -> Show max level characters
+mounts                      -> Show recent mount history
+mythic                      -> Show Mythic key report
+nag                         -> Show nag characters
+nonag <search> [duration]   -> Remove matched chars from the nag list for duration, or until visited.
+played                      -> Time played
+quests [clear|questnum,...] -> Track quests by quest numbers
+rbosses                     -> Raid Bosses
+resting                     -> Show resting characters
+rm name[-realm]             -> Remove name[-realm] from Rested.
+setmountage [duration]      -> Set the time to track mounts.
+setnag [duration]           -> Set the time before a max level character shows up in the nag report.
+setnagtimeout [duration]    -> Set the time to autoshow the nag window.
+setstale [duration]         -> Set the time before a max level character shows up as stale.
+stale                       -> Show stale characters
+storylines [storyline,...]  -> Track quests in a storyline
+uireset                     -> Reset the location of the UI frame
+vault                       -> Show vault info
+
+/isnext                     -> isnext shortcut
 
 
 The rested window Title shows the name of the report shown, and the number of lines.
-Reports are shown, 6 lines at a time, with a search window to limit values for most reports.
+Reports are shown with a search window to limit values for most reports.
 
 The Nag and Stale reports show max level characters who have not been visited in a certain amount of time.
 The Nag report shows max level characters older than the nagStart, but younger than the staleStart cutoff times.
@@ -25,12 +73,22 @@ The Stale report shows any max level character who has not been visited after th
 Time Since visiting character >= nagStart and < staleStart -->  show in Nag report.
 Time Since visiting character >= staleStart -->  show in Stale report.
 
-A character can be 'ignored' for 1 week at a time.
-This is a way to not see a toon for a while (say to make sure they are rested, or to get them out of the nag report).
-
+A character can be 'ignored'.
+This is a way to not see a toon for a while.
+The toon will only appear in the ignore report, until the ignore time expires, or they are visited.
 
 
 Change Log:
+3.27.3  - Updated: Readme.txt has better description of commands.
+3.27.2  - Fixed: IsNext is more stable
+3.27.1  - Updated: 12.0.1
+        - Fixed: IsNext issues
+3.27    - Updated: 12.0.0
+        - Removed: Caches
+        - Added: `/isnext` command as shortcut
+        - Fixed: issecretvalue checks for detecting mounts
+3.26.1  - Fixed: InNext search
+        - Added: "No guild" in guild report for chars not in a guild.
 3.26    - Added: IsNext. Create a list of characters to visit next.
 3.25.2  - Updated: 11.2.7 version
 3.25.1  - Updated: 11.2.5 version
@@ -110,8 +168,8 @@ Change Log:
         - added the find function.
 1.2     - added a function to show the time since level 80's have been seen.
         - inits cutoff value at 7 days.
-		- /rested nagtime # sets cutoff value
-		- status massage shows character and realm count
-		- stale value set to 10 days
-		- stale report
-1.1		- changed output to show time till fully rested.
+        - /rested nagtime # sets cutoff value
+        - status massage shows character and realm count
+        - stale value set to 10 days
+        - stale report
+1.1     - changed output to show time till fully rested.
