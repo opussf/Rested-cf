@@ -22,6 +22,7 @@ function Rested.GetCharacterIndex()
 
 	Rested_restedState[Rested.realm][Rested.name].characterIndex = characterIndex
 	Rested_restedState[Rested.realm][Rested.name].isNextIndex = nil
+	Rested_restedState[Rested.realm][Rested.name].isNextReason = nil
 	Rested.ShiftIsNextCharacterIndex()
 	_, _, Rested.nextCharacterIndex = Rested.IsNext_GetMinMaxNext()
 end
@@ -65,6 +66,8 @@ function Rested.ShiftIsNextCharacterIndex()
 	return maxOut
 end
 function Rested.SetNextCharacters( param )
+	Rested.reportName = "Play Next"
+	Rested.UIShowReport( Rested.NextCharsReport, true )
 	if( param and strlen( param ) > 0 ) then
 		local currentIndex= Rested.ShiftIsNextCharacterIndex() or 0
 		for searchName in string.gmatch( param, "([^ ]+)" ) do
@@ -104,8 +107,6 @@ function Rested.SetNextCharacters( param )
 		end
 		_, _, Rested.nextCharacterIndex = Rested.IsNext_GetMinMaxNext()
 	end
-	Rested.reportName = "Play Next"
-	Rested.UIShowReport( Rested.NextCharsReport, true )
 end
 
 Rested.InitCallback(Rested.RegisterIsNext)
@@ -123,25 +124,44 @@ table.insert( Rested.CSVFields, {"CharacterIndex", "characterIndex"} )
 function Rested.NextCharsReport( realm, name, charStruct )
 	local rn = Rested.FormatName( realm, name )
 	if charStruct.isNextIndex then
-		Rested.strOut = string.format( "%s :: %s%s",
+		Rested.strOut = string.format( "%s :: %s%s%s",
 			charStruct.isNextIndex,
 			rn,
-			(charStruct.characterIndex and "" or " (?)") )
+			(charStruct.characterIndex and "" or " (?)"),
+			(charStruct.isNextReason and " -"..charStruct.isNextReason.."-" or "" ) )
 		table.insert( Rested.charList, { 150 - charStruct.isNextIndex, Rested.strOut } )
 		return 1
 	end
 end
 
 -- macros
-function Rested.isNextMacroList(param)
-	Rested.Print("isnext macro list:")
-	for macro, info in Rested.SortedPairs( Rested.isNextMacros ) do
-		Rested.Print( string.format("   %s %s -> %s",
-				macro, info.help[1], info.help[2] ), false )
+Rested.isNextHelpLines = {
+	"/isnext help:",
+	"This lets you queue characters to visit.",
+	"Use a macro name (isnext :list for a list)",
+	"or use a search to match a character.",
+	"Prepend the search with a '-' to remove a search match.",
+	"Searching '-.' will clear the list.",
+	"Macros:",
+}
+function Rested.isNextHelpReport( )
+	-- normally takes realm, name, charStruct
+	local index = 0
+	if( #Rested.charList == 0 ) then
+		for i, text in ipairs( Rested.isNextHelpLines ) do
+			index = index + 1
+			table.insert( Rested.charList, { 150-(index*0.01), text } )
+		end
+		for macro, info in Rested.SortedPairs( Rested.isNextMacros ) do
+			index = index + 1
+			table.insert( Rested.charList, { 150-(index*0.01), string.format("%s %s -> %s",
+					macro, info.help[1], info.help[2] ) } )
+		end
+		return index
 	end
+	return 0
 end
 function Rested.isNextAlpha(param)
-	local offset = string.match(param, " (%d+)") or 0
 	local alpha = {}
 	for realm, chars in pairs(Rested_restedState) do
 		for name, charStruct in pairs(chars) do
@@ -151,21 +171,23 @@ function Rested.isNextAlpha(param)
 	table.sort(alpha)
 	for i, nameRealm in ipairs(alpha) do
 		local name, realm = string.match(nameRealm, "^(.*):(.*)$")
-		Rested_restedState[realm][name].isNextIndex = i + offset
+		Rested_restedState[realm][name].isNextIndex = i
 	end
 end
 function Rested.isNextRandom(param)
-	local offset = string.match(param, " (%d+)") or 0
 	local r = {}
+	local maxIsNext = 0
 	for realm, chars in pairs(Rested_restedState) do
 		for name, charStruct in pairs(chars) do
 			r[#r + 1] = charStruct
+			maxIsNext = math.max(maxIsNext, charStruct.isNextIndex or 0)
 		end
 	end
 	for lcv = 1, #r do
 		rc = r[random(1, #r)]
 		if not rc.isNextIndex then
-			rc.isNextIndex = 1 + offset
+			rc.isNextIndex = maxIsNext + 1
+			rc.isNextReason = ":random"
 			break
 		end
 	end
@@ -173,7 +195,7 @@ end
 function Rested.isNextFarm(param)
 	-- print("Param:", param)
 	local mod, offset = string.match(param, "(%d+)%s*(%d*)")
-	mod, offset = tonumber(mod) or 7, tonumber(offset) or 0
+	mod, offset = tonumber(mod) or 7, 100
 	-- print( "mod:", mod )
 	-- print( "offset:", offset )
 
@@ -185,15 +207,15 @@ function Rested.isNextFarm(param)
 				and c.farm
 				and c.farm.lastHarvest
 				and c.farm.lastHarvest<time()-86400
-				and c.characterIndex%mod==date("%w")%mod
+				and c.characterIndex%mod==date("%j")%mod
 				and n~=Rested.name then
 			c.isNextIndex = c.characterIndex+offset
+			c.isNextReason = ":farm"
 		end
 	end, true)
 end
 function Rested.isNextProfCooldowns(param)
-	local offset = string.match(param, "(%d+)") or 0
-
+	local offset = 100
 	Rested.ForAllChars(function(r, n, c)
 		if not c.isNextIndex
 				and c.tradeCD
@@ -201,6 +223,7 @@ function Rested.isNextProfCooldowns(param)
 			for id,t in pairs(c.tradeCD) do
 				if t.cdTS and t.cdTS<time() then
 					c.isNextIndex=c.characterIndex+offset
+					c.isNextReason = ":cooldowns"
 					return
 				end
 			end
@@ -229,8 +252,7 @@ end
 -- 	end, true)
 -- end
 function Rested.isNextGarrisonCache(param)
-	local offset = string.match(param, "(%d+)") or 0
-
+	local offset = 100
 	Rested.ForAllChars(function(r, n, c)
 		if not c.isNextIndex
 				and c.garrisonQuantity
@@ -239,12 +261,12 @@ function Rested.isNextGarrisonCache(param)
 				and c.garrisonCache<time()-216000
 				and n~=Rested.name then
 			c.isNextIndex = c.characterIndex+offset
+			c.isNextReason = ":gcache"
 		end
 	end, true)
 end
 function Rested.isNextAuctions(param)
-	local offset = string.match(param, "(%d+)") or 0
-
+	local offset = 100
 	Rested.ForAllChars(function(r,n,c)
 		if not c.isNextIndex
 				and c.Auctions
@@ -252,28 +274,28 @@ function Rested.isNextAuctions(param)
 			for id, a in pairs(c.Auctions) do
 				if a.created <= time() - a.duration then
 					c.isNextIndex = c.characterIndex + offset
+					c.isNextReason = ":auctions"
 					return
 				end
 			end
 		end
 	end, true)
 end
-
 Rested.isNextMacros = {
 	[":alpha"] = {
-		["help"] = {"offset", "Queue all toons alphabetically."},
+		["help"] = {"", "Queue all toons alphabetically."},
 		["func"] = Rested.isNextAlpha,
 	},
 	[":rand"] = {
-		["help"] = {"offset", "Queue a random character."},
+		["help"] = {"", "Queue a random character."},
 		["func"] = Rested.isNextRandom,
 	},
 	[":farm"] = {
-		["help"] = {"day offset", "Queue for pandarian farm."},
+		["help"] = {"day", "Queue for pandarian farm."},
 		["func"] = Rested.isNextFarm,
 	},
 	[":cooldowns"] = {
-		["help"] = {"offset", "Queue for profession cooldowns."},
+		["help"] = {"", "Queue for profession cooldowns."},
 		["func"] = Rested.isNextProfCooldowns,
 	},
 	-- [":conc"] = {
@@ -281,15 +303,15 @@ Rested.isNextMacros = {
 	-- 	["func"] = Rested.isNextConcentration,
 	-- },
 	[":gcache"] = {
-		["help"] = {"offset", "Queue for garrison cache"},
+		["help"] = {"", "Queue for garrison cache"},
 		["func"] = Rested.isNextGarrisonCache,
 	},
 	[":auctions"] = {
-		["help"] = {"offset", "Queue for expired auctions"},
+		["help"] = {"", "Queue for expired auctions"},
 		["func"] = Rested.isNextAuctions,
 	},
-	[":macros"] = {
-		["help"] = {"", "List macros"},
-		["func"] = Rested.isNextMacroList,
+	[":help"] = {
+		["help"] = {"", "Macro help"},
+		["func"] = function() Rested.reportName = "isNext Help"; Rested.UIShowReport(Rested.isNextHelpReport); end,
 	},
 }
