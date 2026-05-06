@@ -96,6 +96,7 @@ function Rested.SetNextCharacters( param )
 						if match then
 							if toRemove then
 								cs.isNextIndex = nil
+								cs.isNextReason = nil
 							else
 								currentIndex = currentIndex + 1
 								cs.isNextIndex = currentIndex
@@ -281,6 +282,17 @@ function Rested.isNextAuctions(param)
 		end
 	end, true)
 end
+function Rested.isNextVault(param)
+	local offset = 100
+	Rested.ForAllChars(function(r,n,c)
+		if not c.isNextIndex
+				and c.weeklyRewards
+				and n~=Rested.name then
+			c.isNextIndex = c.characterIndex+offset
+			c.isNextReason = ":vault"
+		end
+	end, true)
+end
 Rested.isNextMacros = {
 	[":alpha"] = {
 		["help"] = {"", "Queue all toons alphabetically."},
@@ -309,6 +321,10 @@ Rested.isNextMacros = {
 	[":auctions"] = {
 		["help"] = {"", "Queue for expired auctions"},
 		["func"] = Rested.isNextAuctions,
+	},
+	[":vault"] = {
+		["help"] = {"", "Queue for vault contents"},
+		["func"] = Rested.isNextVault,
 	},
 	[":help"] = {
 		["help"] = {"", "Macro help"},
