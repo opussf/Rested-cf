@@ -39,6 +39,7 @@ help <command>              -> Show help. Specific info for command if given.
 ignore <search> [duration]  -> Ignore matched chars, or show ignored.
 ilvl                        -> Show iLvl report
 isnext [search] [search]    -> Queue character to visit next.
+isnext <:macro> <param>     -> Queue characters based on macro, with optional parameter
 level                       -> Show % of level
 max                         -> Show max level characters
 mounts                      -> Show recent mount history

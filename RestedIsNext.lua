@@ -129,7 +129,7 @@ function Rested.NextCharsReport( realm, name, charStruct )
 			charStruct.isNextIndex,
 			rn,
 			(charStruct.characterIndex and "" or " (?)"),
-			(charStruct.isNextReason and " -"..charStruct.isNextReason.."-" or "" ) )
+			(charStruct.isNextReason and COLOR_GOLD.." -"..charStruct.isNextReason.."-"..COLOR_END or "" ) )
 		table.insert( Rested.charList, { 150 - charStruct.isNextIndex, Rested.strOut } )
 		return 1
 	end

@@ -1,0 +1,177 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<CheckButton name="RESTEDOptionsCheckButtonTemplate" inherits="InterfaceOptionsCheckButtonTemplate" virtual="true">
+		<Scripts>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+				GameTooltip:SetText(self.tooltip);
+			</OnEnter>
+			<OnLeave>GameTooltip:Hide();</OnLeave>
+		</Scripts>
+	</CheckButton>
+
+	<Frame name="RestedOptionsFrame">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Title" inherits="GameFontNormalLarge">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset><AbsDimension x="16" y="-16"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_NagHeader" inherits="GameFontNormal" text="Nag Report:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_Title" relativePoint="BOTTOMLEFT" x="16" y="-10"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_percentRested" inherits="GameFontNormalSmall" text="% rested.">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_NagHeader" relativePoint="LEFT" x="180" y="-82"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_untilStale" inherits="GameFontNormalSmall" text="until stale.">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_NagHeader" relativePoint="LEFT" x="210" y="-102"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_StaleText" inherits="GameFontNormalSmall" text="Consider stale after:">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_NagHeader" relativePoint="LEFT" x="10" y="-124"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_durationExplainer" inherits="GameFontNormalSmall" wordWrap="true" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_StaleText" relativePoint="BOTTOMLEFT" x="0" y="-16"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>self:SetText("Enter durations by combining numbers and units.\nThe available units are w (weeks), d (days), h (hours), m (minutes), and s (seconds).\nA plain number with no unit is treated as seconds.")</OnLoad>
+					</Scripts>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_ShowNagReport" inherits="RESTEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_NagHeader" relativePoint="BOTTOMLEFT">
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Enable auto display of Nag Report";</OnLoad>
+					<OnShow>Rested.OptionsPanel_CheckButton_OnShow(self, "nagEnabled", "Auto show for:");</OnShow>
+					<OnClick>Rested.OptionsPanel_CheckButton_OnClick(self, "nagEnabled")</OnClick>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_NagTimeOutValue" inherits="InputBoxTemplate" autoFocus="false">
+				<Size x="50" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_ShowNagReport" relativePoint="RIGHT" x="90" y="0" />
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "If Nag report is auto shown, hide after this time."</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:SetText(self.tooltip);
+					</OnEnter>
+					<OnLeave>GameTooltip:Hide()</OnLeave>
+					<OnShow>Rested.OptionsPanel_DurationEditBox_Onload(self, "nagTimeOut", "Auto Hide after")</OnShow>
+					<OnEditFocusLost>Rested.OptionsPanel_DurationEditBox_OnEditFocusLost(self, "nagTimeOut")</OnEditFocusLost>
+				</Scripts>
+			</EditBox>
+			<CheckButton name="$parent_IncludeLeveling" inherits="RESTEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parent_ShowNagReport" relativePoint="BOTTOM" x="0" y="0" />
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Include Leveling Toons";</OnLoad>
+					<OnShow>Rested.OptionsPanel_CheckButton_OnShow(self,"nagIncludeLeveling","Include Leveling toons");</OnShow>
+					<OnClick>Rested.OptionsPanel_CheckButton_OnClick(self,"nagIncludeLeveling")</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeToEndOfLevel" inherits="UIRadioButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_IncludeLeveling" relativePoint="BOTTOMRIGHT" x="0" y="0" />
+				</Anchors>
+				<Attributes>
+					<Attribute name="var" type="string" value="nagIncludeToEndOfLevel"/>
+				</Attributes>
+				<Scripts>
+					<OnShow>Rested.OptionsPanel_CheckButton_OnShow(self,"nagIncludeToEndOfLevel","Include if rested to end of level")</OnShow>
+					<OnClick>Rested.OptionsPanel_RadioButton_OnClick(self,{RestedOptionsFrame_IncludeOverPercent})</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeOverPercent" inherits="UIRadioButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parent_IncludeToEndOfLevel" relativePoint="BOTTOM" x="0" y="0" />
+				</Anchors>
+				<Attributes>
+					<Attribute name="var" type="string" value="nagIncludeOverPercent"/>
+				</Attributes>
+				<Scripts>
+					<OnShow>Rested.OptionsPanel_CheckButton_OnShow(self,"nagIncludeOverPercent","Include if over")</OnShow>
+					<OnClick>Rested.OptionsPanel_RadioButton_OnClick(self,{RestedOptionsFrame_IncludeToEndOfLevel})</OnClick>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_IncludeOverPercentValue" inherits="InputBoxTemplate" autoFocus="false">
+				<Size x="40" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_IncludeOverPercent" x="110" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnShow>Rested.OptionsPanel_EditBox_OnShow(self,"nagIncludeOverPercentValue","Include if over percent rested")</OnShow>
+					<OnEditFocusLost>Rested.OptionsPanel_EditBox_OnEditFocusLost(self, "nagIncludeOverPercentValue")</OnEditFocusLost>
+				</Scripts>
+			</EditBox>
+			<CheckButton name="$parent_IncludeMaxLevel" inherits="RESTEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parent_IncludeLeveling" relativePoint="BOTTOM" x="0" y="-32"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Include Max Level"</OnLoad>
+					<OnShow>Rested.OptionsPanel_CheckButton_OnShow(self,"nagIncludeMaxLevel","Include Max Level after")</OnShow>
+					<OnClick>Rested.OptionsPanel_CheckButton_OnClick(self,"nagIncludeMaxLevel")</OnClick>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_NagStartValue" inherits="InputBoxTemplate" autoFocus="false">
+				<Size x="50" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_IncludeMaxLevel" x="157" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show character in Nag report if not visited for this time."</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:SetText(self.tooltip);
+					</OnEnter>
+					<OnLeave>GameTooltip:Hide()</OnLeave>
+					<OnShow>Rested.OptionsPanel_DurationEditBox_Onload(self, "nagStart")</OnShow>
+					<OnEditFocusLost>Rested.OptionsPanel_DurationEditBox_OnEditFocusLost(self, "nagStart")</OnEditFocusLost>
+				</Scripts>
+			</EditBox>
+			<EditBox name="$parent_StaleValue" inherits="InputBoxTemplate" autoFocus="false">
+				<Size x="50" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_IncludeMaxLevel" x="130" y="-22"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Consider character stale if not visited for this time."</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:SetText(self.tooltip);
+					</OnEnter>
+					<OnLeave>GameTooltip:Hide()</OnLeave>
+					<OnShow>Rested.OptionsPanel_DurationEditBox_Onload(self, "staleStart")</OnShow>
+					<OnEditFocusLost>Rested.OptionsPanel_DurationEditBox_OnEditFocusLost(self, "staleStart")</OnEditFocusLost>
+				</Scripts>
+			</EditBox>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Rested.OptionsPanel_OnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

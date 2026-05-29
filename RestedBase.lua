@@ -270,18 +270,20 @@ function Rested.NagCharacters( realm, name, charStruct )
 	local reportStr = "%d :: %s : %s"  -- (lvl Now) :: timeSince : Name
 	rn = Rested.FormatName( realm, name )
 	local timeSince = time() - charStruct.updated
-	if( charStruct.lvlNow == Rested.maxLevel and  -- maxLevel char in the NAG range
+	if( Rested_options.nagIncludeMaxLevel and charStruct.lvlNow == Rested.maxLevel and  -- maxLevel char in the NAG range
 			timeSince >= Rested_options.nagStart and
 			timeSince <= Rested_options.staleStart ) then
 		Rested.strOut = string.format( reportStr, charStruct.lvlNow, SecondsToTime( timeSince ), rn )
 		table.insert( Rested.charList, {(timeSince/(Rested_options.staleStart))*(Rested.maxRestedByRace[charStruct.race] or 150), Rested.strOut} )
 		return 1
 	end
-	if( charStruct.lvlNow < Rested.maxLevel and charStruct.restedPC <= (Rested.maxRestedByRace[charStruct.race] or 150)-1 ) then -- leveling character
-		local restedStr, restedVal, code, timeTillRested = Rested.FormatRested( charStruct )
-		rs = Rested.formatRestedStruct  -- side effect of FormatRested()
-		if( ( not rs.lvlPCLeft or restedVal >= rs.lvlPCLeft ) and -- lvlPCLeft is not set if you are fully rested
-				restedVal <= (Rested.maxRestedByRace[charStruct.race] or 150)+100 ) then  -- Add 100, Let it expire after a time.
+	if( Rested_options.nagIncludeLeveling and  -- option
+			charStruct.lvlNow < Rested.maxLevel and  -- leveling char
+			charStruct.restedPC <= (Rested.maxRestedByRace[charStruct.race] or 150)-1 ) then -- was not full rested when last seen
+		local restedStr, restedVal, code, timeTillRested, isRestedPastEndOfLevel = Rested.FormatRested( charStruct )
+		if( (Rested_options.nagIncludeToEndOfLevel and isRestedPastEndOfLevel) or
+				(Rested_options.nagIncludeOverPercent and Rested_options.nagIncludeOverPercentValue and restedVal >= Rested_options.nagIncludeOverPercentValue) ) then
+			rs = Rested.formatRestedStruct  -- side effect of FormatRested()
 			Rested.strOut = string.format( reportStr, charStruct.lvlNow, restedStr, rn )
 			table.insert( Rested.charList, { restedVal, Rested.strOut } )
 			return 1
@@ -301,7 +303,7 @@ Rested.InitCallback( function()
 	end
 )
 Rested.EventCallback( "PLAYER_ENTERING_WORLD", function()
-		if( Rested.ForAllChars( Rested.NagCharacters ) > 0 ) then
+		if( Rested_options.nagEnabled and Rested.ForAllChars( Rested.NagCharacters ) > 0 ) then
 			Rested.Command( "nag" )
 			Rested.autoCloseAfter = Rested_options.nagTimeOut and time()+Rested_options.nagTimeOut or nil
 		end
