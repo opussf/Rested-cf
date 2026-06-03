@@ -20,6 +20,11 @@ function Rested.GetCharacterIndex()
 		end
 	end
 
+	if Rested_restedState[Rested.realm][Rested.name].isNextReason then
+		local reminderText = string.format( "You were on the IsNext queue for %s -%s-%s", COLOR_GOLD, Rested_restedState[Rested.realm][Rested.name].isNextReason, COLOR_END)
+		Rested.AddToReminderSchedule( 5, reminderText, true)
+		Rested.AddToReminderSchedule( 20, reminderText, true )
+	end
 	Rested_restedState[Rested.realm][Rested.name].characterIndex = characterIndex
 	Rested_restedState[Rested.realm][Rested.name].isNextIndex = nil
 	Rested_restedState[Rested.realm][Rested.name].isNextReason = nil
@@ -204,10 +209,10 @@ function Rested.isNextFarm(param)
 		-- print(r,n,c.characterIndex, c.characterIndex%mod, date("%w")%mod, c.farm)
 		-- print("not c.isNextIndex", not c.isNextIndex)
 		if not c.isNextIndex
-				and c.characterIndex
 				and c.farm
 				and c.farm.lastHarvest
 				and c.farm.lastHarvest<time()-86400
+				and c.characterIndex
 				and c.characterIndex%mod==date("%j")%mod
 				and n~=Rested.name then
 			c.isNextIndex = c.characterIndex+offset
@@ -223,7 +228,7 @@ function Rested.isNextProfCooldowns(param)
 				and n~=Rested.name then
 			for id,t in pairs(c.tradeCD) do
 				if t.cdTS and t.cdTS<time() then
-					c.isNextIndex=c.characterIndex+offset
+					c.isNextIndex=(c.characterIndex or 0)+offset
 					c.isNextReason = ":cooldowns"
 					return
 				end
@@ -261,7 +266,7 @@ function Rested.isNextGarrisonCache(param)
 				and c.garrisonCache
 				and c.garrisonCache<time()-216000
 				and n~=Rested.name then
-			c.isNextIndex = c.characterIndex+offset
+			c.isNextIndex = (c.characterIndex or 0)+offset
 			c.isNextReason = ":gcache"
 		end
 	end, true)
@@ -274,7 +279,7 @@ function Rested.isNextAuctions(param)
 				and n~=Rested.name then
 			for id, a in pairs(c.Auctions) do
 				if a.created <= time() - a.duration then
-					c.isNextIndex = c.characterIndex + offset
+					c.isNextIndex = (c.characterIndex or 0) + offset
 					c.isNextReason = ":auctions"
 					return
 				end
@@ -288,7 +293,7 @@ function Rested.isNextVault(param)
 		if not c.isNextIndex
 				and c.weeklyRewards
 				and n~=Rested.name then
-			c.isNextIndex = c.characterIndex+offset
+			c.isNextIndex = (c.characterIndex or 0)+offset
 			c.isNextReason = ":vault"
 		end
 	end, true)

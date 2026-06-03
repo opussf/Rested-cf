@@ -412,6 +412,19 @@ function Rested.MakeReminderSchedule()
 		end
 	end
 end
+function Rested.AddToReminderSchedule( ts, msg, isDiff )
+	-- adds a one off message to the Reminder schedule
+	-- ts (int) is absolute ts, or diff ts if isDiff is set.
+	-- msg (str) is the message to post
+	-- isDiff (bool) to treat ts as diff (IE.  +5 - post in 5 seconds)
+	Rested.reminders = Rested.reminders or {}
+	ts = isDiff and ts+time() or ts
+	if( Rested.reminders[ts] ) then
+		table.insert( Rested.reminders[ts], msg )
+	else
+		Rested.reminders[ts] = { msg }
+	end
+end
 Rested.InitCallback( Rested.MakeReminderSchedule )
 
 function Rested.ReminderOnUpdate()

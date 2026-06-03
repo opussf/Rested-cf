@@ -40,7 +40,11 @@ function Rested.MinimapButton_OnClick(self, button)
 			if RestedUIFrame:IsVisible() then
 				RestedUIFrame:Hide()
 			else
-				RestedUIFrame:Show()
+				if Rested.reportFunction then
+					RestedUIFrame:Show()
+				else
+					Rested.commandList[ Rested_options.defaultReport or "resting" ].func()
+				end
 			end
 		end
 	end
