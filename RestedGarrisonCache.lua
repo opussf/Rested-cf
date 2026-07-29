@@ -56,7 +56,7 @@ function Rested.GcacheReport( realm, name, charStruct )
 							string.format( "%i%s : %s :: %s",
 								Rested.cacheMax,
 								(charStruct.garrisonQuantity and " : "..charStruct.garrisonQuantity or ""),
-								SecondsToTime( time() - fullAt ),
+								SecondsToTime( time() - fullAt, false, false, 1 ),
 								rn) } )
 			end
 			return 1

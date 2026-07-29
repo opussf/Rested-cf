@@ -88,13 +88,23 @@ function Rested.SetNextCharacters( param )
 				for r, _ in pairs( Rested_restedState ) do
 					for n, cs in pairs( Rested_restedState[r] ) do
 						local match = false
-						if( string.find( string.lower(r), searchName ) or
-								string.find( string.lower(n), searchName ) ) then
-							match = true
+						local reason = nil
+						if cs.ignore then
+							if searchName == "ignore" then
+								match = true
+								reason = ">ignore"
+							end
 						else
-							for _, key in pairs( Rested.filterKeys ) do
-								if( cs[key] and string.find( string.lower( cs[key] ), searchName ) ) then
-									match = true
+							if( string.find( string.lower(r), searchName ) or
+									string.find( string.lower(n), searchName ) ) then
+								match = true
+								reason = ">name="..searchName
+							else
+								for _, key in pairs( Rested.filterKeys ) do
+									if( cs[key] and string.find( string.lower( cs[key] ), searchName ) ) then
+										match = true
+										reason = ">"..key.."="..searchName
+									end
 								end
 							end
 						end
@@ -105,6 +115,7 @@ function Rested.SetNextCharacters( param )
 							else
 								currentIndex = currentIndex + 1
 								cs.isNextIndex = currentIndex
+								cs.isNextReason = reason
 							end
 						end
 					end
@@ -218,7 +229,7 @@ function Rested.isNextFarm(param)
 			c.isNextIndex = c.characterIndex+offset
 			c.isNextReason = ":farm"
 		end
-	end, true)
+	end, false)
 end
 function Rested.isNextProfCooldowns(param)
 	local offset = 100
@@ -234,7 +245,7 @@ function Rested.isNextProfCooldowns(param)
 				end
 			end
 		end
-	end, true)
+	end, false)
 end
 -- function Rested.isNextConcentration(param)
 -- 	local offset = string.match(param, "(%d+)") or 0
@@ -269,7 +280,7 @@ function Rested.isNextGarrisonCache(param)
 			c.isNextIndex = (c.characterIndex or 0)+offset
 			c.isNextReason = ":gcache"
 		end
-	end, true)
+	end, false)
 end
 function Rested.isNextAuctions(param)
 	local offset = 100
@@ -285,7 +296,7 @@ function Rested.isNextAuctions(param)
 				end
 			end
 		end
-	end, true)
+	end, false)
 end
 function Rested.isNextVault(param)
 	local offset = 100
@@ -295,6 +306,25 @@ function Rested.isNextVault(param)
 				and n~=Rested.name then
 			c.isNextIndex = (c.characterIndex or 0)+offset
 			c.isNextReason = ":vault"
+		end
+	end, true)
+end
+function Rested.isNextGWO(param)
+	local offset = 100
+	Rested.ForAllChars(function(r,n,c)
+		if not c.isNextIndex
+				and c.garrisonShipments
+				and n~=Rested.name then
+			for buildingName, gs in pairs(c.garrisonShipments) do
+				local queue = true
+				for _, dur in ipairs(gs.shipments or {}) do
+					queue = queue and (gs.sampleTS + dur < time())
+				end
+				if queue then
+					c.isNextIndex = (c.characterIndex or 0)+offset
+					c.isNextReason = ":gwo"
+				end
+			end
 		end
 	end, true)
 end
@@ -314,6 +344,10 @@ Rested.isNextMacros = {
 	[":cooldowns"] = {
 		["help"] = {"", "Queue for profession cooldowns."},
 		["func"] = Rested.isNextProfCooldowns,
+	},
+	[":gwo"] = {
+		["help"] = {"", "Queue for Garrison Work Orders."},
+		["func"] = Rested.isNextGWO,
 	},
 	-- [":conc"] = {
 	-- 	["help"] = {"offset", "Queue for profession concentration."},
