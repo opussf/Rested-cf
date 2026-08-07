@@ -85,8 +85,8 @@ function Rested.SetNextCharacters( param )
 				if toRemove then
 					searchName = string.sub( searchName, 2 )
 				end
-				for r, _ in pairs( Rested_restedState ) do
-					for n, cs in pairs( Rested_restedState[r] ) do
+				for r, _ in Rested.SortedPairs( Rested_restedState ) do
+					for n, cs in Rested.SortedPairs( Rested_restedState[r] ) do
 						local match = false
 						local reason = nil
 						if cs.ignore then

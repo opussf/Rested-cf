@@ -66,10 +66,31 @@ function Rested.Shipments_LOOT_READY()
 		Rested.Shipments_CRAFTER_CLOSED()
 	end
 end
+function Rested.Shipments_FixMissingShipments()
+	if Rested.me.garrisonShipments then
+		for buildingName, si in pairs( Rested.me.garrisonShipments ) do
+			if not Rested.me.garrisonShipments[buildingName].shipments then
+				print("Found an issue.")
+				local t = date("*t") -- table with year, month, day, hour, min, sec, etc.
+				t.day = t.day + 1
+				t.hour = 9
+				t.min = 0
+				t.sec = 0
+				local t9 = time(t)
+				print(date("%Y-%m-%d %H:%M:%S", t9))
+				Rested.me.garrisonShipments[buildingName].shipments = {
+					t9 - Rested.me.garrisonShipments[buildingName].sampleTS
+				}
+				Rested.me.garrisonShipments[buildingName].duration = 14400
+			end
+		end
+	end
+end
 
 Rested.EventCallback("SHIPMENT_CRAFTER_CLOSED", Rested.Shipments_CRAFTER_CLOSED)
 Rested.EventCallback("SHIPMENT_CRAFTER_INFO", Rested.Shipments_CRAFTER_INFO)
 Rested.EventCallback("LOOT_READY", Rested.Shipments_LOOT_READY)
+Rested.InitCallback(Rested.Shipments_FixMissingShipments)
 
 Rested.dropDownMenuTable["Garrison Work Orders"] = "gwo"
 Rested.commandList["gwo"] = { ["help"] = {"","Show garrison work order report."}, ["func"] = function()
