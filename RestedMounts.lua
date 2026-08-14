@@ -10,7 +10,10 @@ function Rested.BuildMountSpells( )
 	end
 end
 function Rested.GetCurrentMount( ... )
-	arg1 = ...
+	if InCombatLockdown() then
+		return  -- guard statement
+	end
+	local arg1 = ...
 	if( arg1 == "MOUNT" ) then   -- only look if the event is for MOUNT
 		if( not IsMounted() ) then -- IsMounted() seems to be updated AFTER this event, and after the auras are updated.
 			Rested.currentMount = nil  -- it will be True (you are mounted) if you were mounted when the event fired (probably not from you)
@@ -86,6 +89,7 @@ function Rested.SetMountHistoryAge( inVal )
 	Rested_options["mountHistoryAge"] = newVal
 	Rested.Print( string.format( "mountHistoryAge changed from %s to %s", previousVal, SecondsToTime( newVal ) ) )
 end
-Rested.commandList["setmountage"] = {["help"] = {"#[s|m|h|d|w]", "Set the time to track mounts."},
-		["func"] = Rested.SetMountHistoryAge }
-
+Rested.commandList["setmountage"] = {
+		["help"] = {"#[s|m|h|d|w]", "Set the time to track mounts."},
+		["func"] = Rested.SetMountHistoryAge
+}
