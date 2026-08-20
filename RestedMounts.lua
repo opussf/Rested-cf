@@ -13,6 +13,9 @@ function Rested.GetCurrentMount( ... )
 	if InCombatLockdown() then
 		return  -- guard statement
 	end
+	if not pcall( C_UnitAuras.GetAuraDataByIndex, "player", 1 ) then
+		return  -- guard against tainted code
+	end
 	local arg1 = ...
 	if( arg1 == "MOUNT" ) then   -- only look if the event is for MOUNT
 		if( not IsMounted() ) then -- IsMounted() seems to be updated AFTER this event, and after the auras are updated.
